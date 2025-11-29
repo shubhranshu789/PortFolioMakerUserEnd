@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import type React from "react"
 import { useRouter } from 'next/navigation'
 import emailjs from '@emailjs/browser';
+// export const dynamic = "force-dynamic";
 
 interface UserData {
   hero: {
@@ -75,12 +76,12 @@ export default function UI5() {
   const [userName, setUserName] = useState('Portfolio')
   const [userEmail, setuserEmail] = useState('')
   const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}`;
+  const [windowDimensions, setWindowDimensions] = useState({ width: 0, height: 0 });
 
 
 
-  
 
-const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -194,20 +195,54 @@ const [submitted, setSubmitted] = useState(false);
     }
   }
 
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     setScrolled(window.scrollY > 50)
+  //   }
+  //   const handleMouseMove = (e: MouseEvent) => {
+  //     setMousePosition({ x: e.clientX, y: e.clientY })
+  //   }
+  //   window.addEventListener("scroll", handleScroll)
+  //   window.addEventListener("mousemove", handleMouseMove)
+  //   return () => {
+  //     window.removeEventListener("scroll", handleScroll)
+  //     window.removeEventListener("mousemove", handleMouseMove)
+  //   }
+  // }, [])
+
   useEffect(() => {
+    // Set initial dimensions
+    setWindowDimensions({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
     }
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY })
     }
+
     window.addEventListener("scroll", handleScroll)
     window.addEventListener("mousemove", handleMouseMove)
+
     return () => {
       window.removeEventListener("scroll", handleScroll)
       window.removeEventListener("mousemove", handleMouseMove)
     }
   }, [])
+
+
+  const [particles] = useState(() =>
+    [...Array(20)].map(() => ({
+      startX: Math.random() * 100,
+      endX: Math.random() * 100,
+      startY: Math.random() * 100,
+      endY: Math.random() * 100,
+      duration: Math.random() * 3 + 2
+    }))
+  );
 
   const navLinks = [
     { label: "Home", href: "#home" },
@@ -223,17 +258,17 @@ const [submitted, setSubmitted] = useState(false);
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950 flex items-center justify-center relative overflow-hidden">
         {/* Animated particles */}
-        {[...Array(20)].map((_, i) => (
+        {particles.map((particle, i) => (
           <motion.div
             key={i}
             className="absolute w-2 h-2 bg-white rounded-full"
-            animate={{
-              x: [Math.random() * window.innerWidth, Math.random() * window.innerWidth],
-              y: [Math.random() * window.innerHeight, Math.random() * window.innerHeight],
+            animate={windowDimensions.width > 0 ? {
+              x: [particle.startX * windowDimensions.width / 100, particle.endX * windowDimensions.width / 100],
+              y: [particle.startY * windowDimensions.height / 100, particle.endY * windowDimensions.height / 100],
               opacity: [0, 1, 0],
-            }}
+            } : {}}
             transition={{
-              duration: Math.random() * 3 + 2,
+              duration: particle.duration,
               repeat: Infinity,
               ease: "linear"
             }}
@@ -295,9 +330,8 @@ const [submitted, setSubmitted] = useState(false);
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-300 ${
-          scrolled ? 'w-11/12 max-w-6xl' : 'w-11/12 max-w-7xl'
-        }`}
+        className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-300 ${scrolled ? 'w-11/12 max-w-6xl' : 'w-11/12 max-w-7xl'
+          }`}
       >
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-6 py-4 shadow-2xl">
           <div className="flex justify-between items-center">
@@ -598,7 +632,7 @@ const [submitted, setSubmitted] = useState(false);
                         transition={{ delay: idx * 0.05 }}
                         whileHover={{ scale: 1.1, y: -5 }}
                         className="px-6 py-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full hover:bg-white/20 transition-all cursor-pointer"
-                        style={{ 
+                        style={{
                           boxShadow: `0 0 20px ${category.color}30`
                         }}
                       >
@@ -853,29 +887,29 @@ const [submitted, setSubmitted] = useState(false);
               <h3 className="text-center text-xl font-bold mb-8">Connect with me</h3>
               <div className="flex justify-center gap-4">
                 {userData.socialLinks.map((social, index) => (
-                 <div>
-                   <motion.a
-                    key={index}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ y: -5, scale: 1.1 }}
-                    className="w-14 h-14 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl flex items-center justify-center text-2xl hover:bg-white/20 transition-all"
-                  >
-                    {social.icon}
-                  </motion.a>
+                  <div>
+                    <motion.a
+                      key={index}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ y: -5, scale: 1.1 }}
+                      className="w-14 h-14 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl flex items-center justify-center text-2xl hover:bg-white/20 transition-all"
+                    >
+                      {social.icon}
+                    </motion.a>
 
-                   <motion.a
-                    key={index}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ y: -5, scale: 1.1 }}
-                    className="w-14 h-14   flex items-center justify-center text-2xl"
-                  >
-                    {social.label}
-                  </motion.a>
-                 </div>
+                    <motion.a
+                      key={index}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ y: -5, scale: 1.1 }}
+                      className="w-14 h-14   flex items-center justify-center text-2xl"
+                    >
+                      {social.label}
+                    </motion.a>
+                  </div>
                 ))}
               </div>
             </div>
