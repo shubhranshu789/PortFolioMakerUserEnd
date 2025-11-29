@@ -51,7 +51,7 @@ export default function Dashboard() {
 
   const router = useRouter();
 
-  const API_BASE = 'http://localhost:5000';
+  const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}`;
   // const USERNAME = 'shubh5'; // Make this dynamic later if needed
 
   useEffect(() => {

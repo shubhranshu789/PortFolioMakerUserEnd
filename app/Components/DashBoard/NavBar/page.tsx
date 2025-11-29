@@ -61,7 +61,7 @@ export default function NavBar() {
 
   const fetchSelectedTemplate = async (username: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/profile/${username}/templates`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/profile/${username}/templates`);
       if (response.ok) {
         const data = await response.json();
         setSelectedTemplate(data.selectedTemplate || 'UI1');

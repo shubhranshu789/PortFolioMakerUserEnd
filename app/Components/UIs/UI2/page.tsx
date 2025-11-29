@@ -74,7 +74,7 @@ export default function Portfolio() {
   // const USERNAME = 'shubh5'
   const [USERNAME, setUsername] = useState('');
   const [isFetching, setIsFetching] = useState(true);
-  const API_BASE = 'http://localhost:5000'
+  const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}`;
 
 
 

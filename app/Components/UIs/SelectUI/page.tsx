@@ -24,7 +24,7 @@ export default function TemplateGallery() {
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
   const [showPreview, setShowPreview] = useState(false);
 
-  const API_BASE = 'http://localhost:5000';
+  const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}`;
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');

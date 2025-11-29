@@ -73,7 +73,7 @@ export default function UI4() {
   const [USERNAME, setUsername] = useState('')
   const [userName, setUserName] = useState('Portfolio')
   const [userEmail, setuserEmail] = useState('')
-  const API_BASE = 'http://localhost:5000'
+  const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}`;
 
 
   
