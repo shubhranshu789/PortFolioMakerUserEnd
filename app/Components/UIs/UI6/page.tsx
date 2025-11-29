@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform, AnimatePresence, useSpring, useMotionV
 import type React from "react"
 import { useRouter } from 'next/navigation'
 import emailjs from '@emailjs/browser'
+import { useParams } from 'next/navigation'
 
 interface UserData {
   hero: {
@@ -69,6 +70,7 @@ export default function UI3() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   const router = useRouter()
+    const params = useParams()
   const { scrollYProgress } = useScroll()
   const scaleProgress = useTransform(scrollYProgress, [0, 1], [0, 1])
 
@@ -98,86 +100,81 @@ export default function UI3() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      const storedUser = localStorage.getItem('user')
-
-      if (!storedUser) {
-        alert('Portfolio owner information not found')
-        return
+      // Use the email from state (already fetched from API)
+      if (!userEmail) {
+        alert('Portfolio owner information not found');
+        return;
       }
 
-      const userData = JSON.parse(storedUser)
-      const portfolioOwnerEmail = userData.email
-
       const templateParams = {
-        to_email: portfolioOwnerEmail,
+        to_email: userEmail, // Email fetched from API
         from_name: formData.name,
         from_email: formData.email,
         message: formData.message,
-      }
+      };
 
       await emailjs.send(
         'service_girqhvt',
         'template_u847pee',
         templateParams,
         'O8RoSh1QrCmKJeJn7'
-      )
+      );
 
-      setSubmitted(true)
+      setSubmitted(true);
       setTimeout(() => {
-        setSubmitted(false)
-        setFormData({ name: '', email: '', message: '' })
-      }, 3000)
+        setSubmitted(false);
+        setFormData({ name: '', email: '', message: '' });
+      }, 3000);
 
     } catch (error) {
-      console.error('Error sending email:', error)
-      alert('Failed to send message. Please try again.')
+      console.error('Error sending email:', error);
+      alert('Failed to send message. Please try again.');
     }
-  }
+  };
+
+
+
 
   useEffect(() => {
-    const getUserFromStorage = () => {
-      try {
-        const userStr = localStorage.getItem('user')
-        if (userStr) {
-          const user = JSON.parse(userStr)
-          setUsername(user.userName || user.username || '')
-          setUserName(user.userName || user.name || 'Portfolio')
-          setuserEmail(user.email || '')
-          return user.userName || user.username || ''
-        }
-      } catch (error) {
-        console.error('Error parsing user from localStorage:', error)
-      }
-      return ''
-    }
+    const usernameFromUrl = params.username as string
 
-    const currentUsername = getUserFromStorage()
-
-    if (currentUsername) {
-      fetchUserData(currentUsername)
+    if (usernameFromUrl) {
+      fetchUserData(usernameFromUrl)
     } else {
-      alert('❌ Please login first')
-      router.push(`/Components/Auth/SignIn`)
+      alert('❌ Username not found in URL')
+      router.push('/Components/Auth/SignIn')
     }
-  }, [])
+  }, [params.username])
+
 
   const fetchUserData = async (username: string) => {
     try {
       setLoading(true)
       const response = await fetch(`${API_BASE}/profile/${username}`)
+
       if (response.ok) {
         const data = await response.json()
+
+        // Set all user information from the API response
         setUserData(data)
+        setUsername(data.userName || data.username || '')
+        setUserName(data.userName || data.name || 'Portfolio')
+        setuserEmail(data.email || '')
+      } else {
+        // alert('❌ User not found')
+        router.push('/Components/Auth/SignIn')
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
+      alert('❌ Error loading portfolio')
     } finally {
       setLoading(false)
     }
   }
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -205,6 +202,7 @@ export default function UI3() {
     { label: "Skills", href: "#skills" },
     { label: "Work", href: "#projects" },
     { label: "Contact", href: "#contact" },
+    // { label: "Dashboard", href: "/Components/DashBoard" },
   ]
 
   const currentYear = new Date().getFullYear()
@@ -385,14 +383,7 @@ export default function UI3() {
             ))}
           </div>
 
-          <motion.a
-            href="/Components/DashBoard"
-            whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(168, 85, 247, 0.5)" }}
-            whileTap={{ scale: 0.95 }}
-            className="hidden md:block px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-full shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all"
-          >
-            Dashboard
-          </motion.a>
+        
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -425,7 +416,7 @@ export default function UI3() {
                     {link.label}
                   </motion.a>
                 ))}
-                <motion.a
+                {/* <motion.a
                   href="/Components/DashBoard"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -433,7 +424,7 @@ export default function UI3() {
                   className="block px-4 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center font-semibold"
                 >
                   Dashboard
-                </motion.a>
+                </motion.a> */}
               </div>
             </motion.div>
           )}

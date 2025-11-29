@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import type React from "react"
 import { useRouter } from 'next/navigation';
 import emailjs from '@emailjs/browser';
+import { useParams } from 'next/navigation'
 
 interface UserData {
   hero: {
@@ -67,6 +68,7 @@ export default function Portfolio() {
   const [loading, setLoading] = useState(true)
 
   const router = useRouter()
+  const params = useParams()
 
   const { scrollYProgress } = useScroll()
   const scaleProgress = useTransform(scrollYProgress, [0, 1], [0, 1])
@@ -93,21 +95,14 @@ export default function Portfolio() {
     e.preventDefault();
 
     try {
-      // Extract email from localStorage
-      const storedUser = localStorage.getItem('user');
-
-      if (!storedUser) {
+      // Use the email from state (already fetched from API)
+      if (!userEmail) {
         alert('Portfolio owner information not found');
         return;
       }
 
-      const userData = JSON.parse(storedUser);
-      const portfolioOwnerEmail = userData.email; // "Shubh5@gmail.com"
-
-      // Send email using your preferred method
-      // Option 1: EmailJS
       const templateParams = {
-        to_email: portfolioOwnerEmail, // Shubh5@gmail.com
+        to_email: userEmail, // Email fetched from API
         from_name: formData.name,
         from_email: formData.email,
         message: formData.message,
@@ -119,18 +114,6 @@ export default function Portfolio() {
         templateParams,
         'O8RoSh1QrCmKJeJn7'
       );
-
-      // OR Option 2: API Route
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipientEmail: portfolioOwnerEmail, // Shubh5@gmail.com
-          senderName: formData.name,
-          senderEmail: formData.email,
-          message: formData.message,
-        }),
-      });
 
       setSubmitted(true);
       setTimeout(() => {
@@ -147,63 +130,38 @@ export default function Portfolio() {
 
 
 
-
-
   useEffect(() => {
-    const getUserFromStorage = () => {
-      try {
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-          const user = JSON.parse(userStr);
-          setUsername(user.userName || user.username || '');
-          return user.userName || user.username || '';
-        }
-      } catch (error) {
-        console.error('Error parsing user from localStorage:', error);
-      }
-      return '';
-    };
+    const usernameFromUrl = params.username as string
 
-    const currentUsername = getUserFromStorage();
-
-    if (currentUsername) {
-      fetchUserData(currentUsername);
+    if (usernameFromUrl) {
+      fetchUserData(usernameFromUrl)
     } else {
-      alert('❌ Please login first');
-      setIsFetching(false);
-
-      router.push(`/Components/Auth/SignIn`);
-
-      // Optionally redirect to login page
-      // window.location.href = '/login';
+      alert('❌ Username not found in URL')
+      router.push('/Components/Auth/SignIn')
     }
-  }, []);
+  }, [params.username])
 
-  useEffect(() => {
-    try {
-      const userStr = localStorage.getItem('user')
-      if (userStr) {
-        const user = JSON.parse(userStr)
-        fetchUserData(user.userName || USERNAME)
-      } else {
-        fetchUserData(USERNAME)
-      }
-    } catch (error) {
-      console.error('Error:', error)
-      fetchUserData(USERNAME)
-    }
-  }, [])
 
   const fetchUserData = async (username: string) => {
     try {
       setLoading(true)
       const response = await fetch(`${API_BASE}/profile/${username}`)
+
       if (response.ok) {
         const data = await response.json()
+
+        // Set all user information from the API response
         setUserData(data)
+        setUsername(data.userName || data.username || '')
+        setUserName(data.userName || data.name || 'Portfolio')
+        setuserEmail(data.email || '')
+      } else {
+        // alert('❌ User not found')
+        router.push('/Components/Auth/SignIn')
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
+      alert('❌ Error loading portfolio')
     } finally {
       setLoading(false)
     }
@@ -223,7 +181,7 @@ export default function Portfolio() {
     { label: "Experience", href: "#experience" },
     { label: "Projects", href: "#projects" },
     { label: "Contact", href: "#contact" },
-    { label: "DashBoard", href: "/Components/DashBoard" },
+    // { label: "DashBoard", href: "/Components/DashBoard" },
   ]
 
 

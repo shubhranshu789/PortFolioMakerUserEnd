@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import type React from "react"
 import { useRouter } from 'next/navigation'
 import emailjs from '@emailjs/browser';
+import { useParams } from 'next/navigation'
 
 
 interface UserData {
@@ -69,6 +70,7 @@ export default function UI3() {
   const [activeSection, setActiveSection] = useState('home')
 
   const router = useRouter()
+    const params = useParams()
   const { scrollYProgress } = useScroll()
   const scaleProgress = useTransform(scrollYProgress, [0, 1], [0, 1])
 
@@ -94,21 +96,14 @@ export default function UI3() {
     e.preventDefault();
 
     try {
-      // Extract email from localStorage
-      const storedUser = localStorage.getItem('user');
-
-      if (!storedUser) {
+      // Use the email from state (already fetched from API)
+      if (!userEmail) {
         alert('Portfolio owner information not found');
         return;
       }
 
-      const userData = JSON.parse(storedUser);
-      const portfolioOwnerEmail = userData.email; // "Shubh5@gmail.com"
-
-      // Send email using your preferred method
-      // Option 1: EmailJS
       const templateParams = {
-        to_email: portfolioOwnerEmail, // Shubh5@gmail.com
+        to_email: userEmail, // Email fetched from API
         from_name: formData.name,
         from_email: formData.email,
         message: formData.message,
@@ -120,18 +115,6 @@ export default function UI3() {
         templateParams,
         'O8RoSh1QrCmKJeJn7'
       );
-
-      // OR Option 2: API Route
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipientEmail: portfolioOwnerEmail, // Shubh5@gmail.com
-          senderName: formData.name,
-          senderEmail: formData.email,
-          message: formData.message,
-        }),
-      });
 
       setSubmitted(true);
       setTimeout(() => {
@@ -148,45 +131,38 @@ export default function UI3() {
 
 
 
-
-
   useEffect(() => {
-    const getUserFromStorage = () => {
-      try {
-        const userStr = localStorage.getItem('user')
-        if (userStr) {
-          const user = JSON.parse(userStr)
-          setUsername(user.userName || user.username || '')
-          setUserName(user.userName || user.name || 'Portfolio')
-          setuserEmail(user.email || '')
-          return user.userName || user.username || ''
-        }
-      } catch (error) {
-        console.error('Error parsing user from localStorage:', error)
-      }
-      return ''
-    }
+    const usernameFromUrl = params.username as string
 
-    const currentUsername = getUserFromStorage()
-
-    if (currentUsername) {
-      fetchUserData(currentUsername)
+    if (usernameFromUrl) {
+      fetchUserData(usernameFromUrl)
     } else {
-      alert('❌ Please login first')
-      router.push(`/Components/Auth/SignIn`)
+      alert('❌ Username not found in URL')
+      router.push('/Components/Auth/SignIn')
     }
-  }, [])
+  }, [params.username])
+
 
   const fetchUserData = async (username: string) => {
     try {
       setLoading(true)
       const response = await fetch(`${API_BASE}/profile/${username}`)
+
       if (response.ok) {
         const data = await response.json()
+
+        // Set all user information from the API response
         setUserData(data)
+        setUsername(data.userName || data.username || '')
+        setUserName(data.userName || data.name || 'Portfolio')
+        setuserEmail(data.email || '')
+      } else {
+        // alert('❌ User not found')
+        router.push('/Components/Auth/SignIn')
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
+      alert('❌ Error loading portfolio')
     } finally {
       setLoading(false)
     }
@@ -206,6 +182,7 @@ export default function UI3() {
     { label: "Skills", href: "#skills" },
     { label: "Work", href: "#projects" },
     { label: "Contact", href: "#contact" },
+    // { label: "Dashboard", href: "/Components/DashBoard" },
   ]
 
  
@@ -310,14 +287,14 @@ export default function UI3() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-500 group-hover:w-full transition-all duration-300" />
               </motion.a>
             ))}
-            <motion.a
+            {/* <motion.a
               href="/Components/DashBoard"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-6 py-2 bg-emerald-500 text-black font-bold rounded-full hover:bg-emerald-400 transition-colors"
             >
               Dashboard
-            </motion.a>
+            </motion.a> */}
           </div>
 
           <button

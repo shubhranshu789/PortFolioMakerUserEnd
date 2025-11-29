@@ -7,6 +7,8 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import type React from "react"
 import { useRouter } from 'next/navigation'
 import emailjs from '@emailjs/browser';
+import { useParams } from 'next/navigation'
+// import "../../../Components/DashBoard"
 
 interface UserData {
   hero: {
@@ -68,6 +70,7 @@ export default function UI4() {
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 })
 
   const router = useRouter()
+  const params = useParams()
   const { scrollYProgress } = useScroll()
 
   const [USERNAME, setUsername] = useState('')
@@ -76,8 +79,8 @@ export default function UI4() {
   const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}`;
 
 
-  
-const [submitted, setSubmitted] = useState(false);
+
+  const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -88,25 +91,74 @@ const [submitted, setSubmitted] = useState(false);
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     // Extract email from localStorage
+  //     const storedUser = localStorage.getItem('user');
+
+  //     if (!storedUser) {
+  //       alert('Portfolio owner information not found');
+  //       return;
+  //     }
+
+  //     const userData = JSON.parse(storedUser);
+  //     const portfolioOwnerEmail = userData.email; // "Shubh5@gmail.com"
+
+  //     // Send email using your preferred method
+  //     // Option 1: EmailJS
+  //     const templateParams = {
+  //       to_email: portfolioOwnerEmail, // Shubh5@gmail.com
+  //       from_name: formData.name,
+  //       from_email: formData.email,
+  //       message: formData.message,
+  //     };
+
+  //     await emailjs.send(
+  //       'service_girqhvt',
+  //       'template_u847pee',
+  //       templateParams,
+  //       'O8RoSh1QrCmKJeJn7'
+  //     );
+
+  //     // OR Option 2: API Route
+  //     const response = await fetch('/api/send-email', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({
+  //         recipientEmail: portfolioOwnerEmail, // Shubh5@gmail.com
+  //         senderName: formData.name,
+  //         senderEmail: formData.email,
+  //         message: formData.message,
+  //       }),
+  //     });
+
+  //     setSubmitted(true);
+  //     setTimeout(() => {
+  //       setSubmitted(false);
+  //       setFormData({ name: '', email: '', message: '' });
+  //     }, 3000);
+
+  //   } catch (error) {
+  //     console.error('Error sending email:', error);
+  //     alert('Failed to send message. Please try again.');
+  //   }
+  // };
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      // Extract email from localStorage
-      const storedUser = localStorage.getItem('user');
-
-      if (!storedUser) {
+      // Use the email from state (already fetched from API)
+      if (!userEmail) {
         alert('Portfolio owner information not found');
         return;
       }
 
-      const userData = JSON.parse(storedUser);
-      const portfolioOwnerEmail = userData.email; // "Shubh5@gmail.com"
-
-      // Send email using your preferred method
-      // Option 1: EmailJS
       const templateParams = {
-        to_email: portfolioOwnerEmail, // Shubh5@gmail.com
+        to_email: userEmail, // Email fetched from API
         from_name: formData.name,
         from_email: formData.email,
         message: formData.message,
@@ -118,18 +170,6 @@ const [submitted, setSubmitted] = useState(false);
         templateParams,
         'O8RoSh1QrCmKJeJn7'
       );
-
-      // OR Option 2: API Route
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipientEmail: portfolioOwnerEmail, // Shubh5@gmail.com
-          senderName: formData.name,
-          senderEmail: formData.email,
-          message: formData.message,
-        }),
-      });
 
       setSubmitted(true);
       setTimeout(() => {
@@ -146,49 +186,43 @@ const [submitted, setSubmitted] = useState(false);
 
 
 
-
-
   useEffect(() => {
-    const getUserFromStorage = () => {
-      try {
-        const userStr = localStorage.getItem('user')
-        if (userStr) {
-          const user = JSON.parse(userStr)
-          setUsername(user.userName || user.username || '')
-          setUserName(user.userName || user.name || 'Portfolio')
-          setuserEmail(user.email || '')
-          return user.userName || user.username || ''
-        }
-      } catch (error) {
-        console.error('Error parsing user from localStorage:', error)
-      }
-      return ''
-    }
+    const usernameFromUrl = params.username as string
 
-    const currentUsername = getUserFromStorage()
-
-    if (currentUsername) {
-      fetchUserData(currentUsername)
+    if (usernameFromUrl) {
+      fetchUserData(usernameFromUrl)
     } else {
-      alert('❌ Please login first')
-      router.push(`/Components/Auth/SignIn`)
+      alert('❌ Username not found in URL')
+      router.push('/Components/Auth/SignIn')
     }
-  }, [])
+  }, [params.username])
+
 
   const fetchUserData = async (username: string) => {
     try {
       setLoading(true)
       const response = await fetch(`${API_BASE}/profile/${username}`)
+
       if (response.ok) {
         const data = await response.json()
+
+        // Set all user information from the API response
         setUserData(data)
+        setUsername(data.userName || data.username || '')
+        setUserName(data.userName || data.name || 'Portfolio')
+        setuserEmail(data.email || '')
+      } else {
+        // alert('❌ User not found')
+        router.push('/Components/Auth/SignIn')
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
+      alert('❌ Error loading portfolio')
     } finally {
       setLoading(false)
     }
   }
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -211,6 +245,7 @@ const [submitted, setSubmitted] = useState(false);
     { label: "Skills", href: "#skills" },
     { label: "Work", href: "#projects" },
     { label: "Contact", href: "#contact" },
+    // { label: "Dashboard", href: "/Components/DashBoard" },
   ]
 
 
@@ -286,13 +321,13 @@ const [submitted, setSubmitted] = useState(false);
                     {link.label}
                   </motion.a>
                 ))}
-                <motion.a
+                {/* <motion.a
                   href="/Components/DashBoard"
                   whileHover={{ scale: 1.05 }}
                   className="ml-2 px-6 py-2 bg-black text-white border-2 border-black font-bold uppercase text-sm hover:bg-red-500 hover:border-red-500 transition-all"
                 >
                   Dashboard
-                </motion.a>
+                </motion.a> */}
               </div>
 
               <button
@@ -606,10 +641,9 @@ const [submitted, setSubmitted] = useState(false);
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   whileHover={{ rotate: 1, scale: 1.02 }}
-                  className={`p-8 ${
-                    index % 3 === 0 ? 'bg-pink-400' :
-                    index % 3 === 1 ? 'bg-blue-400' : 'bg-green-400'
-                  } border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all`}
+                  className={`p-8 ${index % 3 === 0 ? 'bg-pink-400' :
+                      index % 3 === 1 ? 'bg-blue-400' : 'bg-green-400'
+                    } border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                     <div>

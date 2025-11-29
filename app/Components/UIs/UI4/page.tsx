@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import type React from "react"
 import { useRouter } from 'next/navigation'
 import emailjs from '@emailjs/browser';
+import { useParams } from 'next/navigation'
 // export const dynamic = "force-dynamic";
 
 interface UserData {
@@ -69,6 +70,7 @@ export default function UI5() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   const router = useRouter()
+    const params = useParams()
   const { scrollYProgress } = useScroll()
   const yPosAnim = useTransform(scrollYProgress, [0, 1], [0, -100])
 
@@ -96,21 +98,14 @@ export default function UI5() {
     e.preventDefault();
 
     try {
-      // Extract email from localStorage
-      const storedUser = localStorage.getItem('user');
-
-      if (!storedUser) {
+      // Use the email from state (already fetched from API)
+      if (!userEmail) {
         alert('Portfolio owner information not found');
         return;
       }
 
-      const userData = JSON.parse(storedUser);
-      const portfolioOwnerEmail = userData.email; // "Shubh5@gmail.com"
-
-      // Send email using your preferred method
-      // Option 1: EmailJS
       const templateParams = {
-        to_email: portfolioOwnerEmail, // Shubh5@gmail.com
+        to_email: userEmail, // Email fetched from API
         from_name: formData.name,
         from_email: formData.email,
         message: formData.message,
@@ -122,18 +117,6 @@ export default function UI5() {
         templateParams,
         'O8RoSh1QrCmKJeJn7'
       );
-
-      // OR Option 2: API Route
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipientEmail: portfolioOwnerEmail, // Shubh5@gmail.com
-          senderName: formData.name,
-          senderEmail: formData.email,
-          message: formData.message,
-        }),
-      });
 
       setSubmitted(true);
       setTimeout(() => {
@@ -150,46 +133,38 @@ export default function UI5() {
 
 
 
-
-
-
   useEffect(() => {
-    const getUserFromStorage = () => {
-      try {
-        const userStr = localStorage.getItem('user')
-        if (userStr) {
-          const user = JSON.parse(userStr)
-          setUsername(user.userName || user.username || '')
-          setUserName(user.userName || user.name || 'Portfolio')
-          setuserEmail(user.email || '')
-          return user.userName || user.username || ''
-        }
-      } catch (error) {
-        console.error('Error parsing user from localStorage:', error)
-      }
-      return ''
-    }
+    const usernameFromUrl = params.username as string
 
-    const currentUsername = getUserFromStorage()
-
-    if (currentUsername) {
-      fetchUserData(currentUsername)
+    if (usernameFromUrl) {
+      fetchUserData(usernameFromUrl)
     } else {
-      alert('❌ Please login first')
-      router.push(`/Components/Auth/SignIn`)
+      alert('❌ Username not found in URL')
+      router.push('/Components/Auth/SignIn')
     }
-  }, [])
+  }, [params.username])
+
 
   const fetchUserData = async (username: string) => {
     try {
       setLoading(true)
       const response = await fetch(`${API_BASE}/profile/${username}`)
+
       if (response.ok) {
         const data = await response.json()
+
+        // Set all user information from the API response
         setUserData(data)
+        setUsername(data.userName || data.username || '')
+        setUserName(data.userName || data.name || 'Portfolio')
+        setuserEmail(data.email || '')
+      } else {
+        // alert('❌ User not found')
+        router.push('/Components/Auth/SignIn')
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
+      alert('❌ Error loading portfolio')
     } finally {
       setLoading(false)
     }
@@ -250,6 +225,7 @@ export default function UI5() {
     { label: "Skills", href: "#skills" },
     { label: "Portfolio", href: "#projects" },
     { label: "Contact", href: "#contact" },
+    // { label: "Dashboard", href: "/Components/DashBoard" },
   ]
 
   const currentYear = new Date().getFullYear()
@@ -355,13 +331,13 @@ export default function UI5() {
                   {link.label}
                 </motion.a>
               ))}
-              <motion.a
+              {/* <motion.a
                 href="/Components/DashBoard"
                 whileHover={{ scale: 1.05 }}
                 className="ml-2 px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl font-medium hover:shadow-lg hover:shadow-purple-500/50 transition-all"
               >
                 Dashboard
-              </motion.a>
+              </motion.a> */}
             </div>
 
             <button
