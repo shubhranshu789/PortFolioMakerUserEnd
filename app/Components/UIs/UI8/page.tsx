@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import type React from "react"
 import { useRouter } from 'next/navigation'
 import emailjs from '@emailjs/browser';
+import { useParams } from 'next/navigation'
 
 interface UserData {
   hero: {
@@ -68,6 +69,7 @@ export default function FemininePortfolio() {
   const [activeSection, setActiveSection] = useState('home')
 
   const router = useRouter()
+  const params = useParams()
   const { scrollYProgress } = useScroll()
   const scaleProgress = useTransform(scrollYProgress, [0, 1], [0, 1])
 
@@ -128,31 +130,15 @@ export default function FemininePortfolio() {
   };
 
   useEffect(() => {
-    const getUserFromStorage = () => {
-      try {
-        const userStr = localStorage.getItem('user')
-        if (userStr) {
-          const user = JSON.parse(userStr)
-          setUsername(user.userName || user.username || '')
-          setUserName(user.userName || user.name || 'Portfolio')
-          setuserEmail(user.email || '')
-          return user.userName || user.username || ''
-        }
-      } catch (error) {
-        console.error('Error parsing user from localStorage:', error)
-      }
-      return ''
-    }
+    const usernameFromUrl = params.username as string
 
-    const currentUsername = getUserFromStorage()
-
-    if (currentUsername) {
-      fetchUserData(currentUsername)
+    if (usernameFromUrl) {
+      fetchUserData(usernameFromUrl)
     } else {
-      alert('❌ Please login first')
-      router.push(`/Components/Auth/SignIn`)
+      alert('❌ Username not found in URL')
+      router.push('/Components/Auth/SignIn')
     }
-  }, [])
+  }, [params.username])
 
   const fetchUserData = async (username: string) => {
     try {
@@ -292,9 +278,8 @@ export default function FemininePortfolio() {
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`fixed top-0 w-full z-40 transition-all duration-300 ${
-          scrolled ? "bg-white/90 backdrop-blur-xl shadow-xl shadow-pink-100/30" : "bg-transparent"
-        }`}
+        className={`fixed top-0 w-full z-40 transition-all duration-300 ${scrolled ? "bg-white/90 backdrop-blur-xl shadow-xl shadow-pink-100/30" : "bg-transparent"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
           <motion.div
@@ -627,9 +612,8 @@ export default function FemininePortfolio() {
                   <motion.div
                     key={index}
                     variants={fadeInUp}
-                    className={`relative mb-20 ${
-                      index % 2 === 0 ? "md:pr-1/2 md:text-right" : "md:pl-1/2 md:ml-auto"
-                    }`}
+                    className={`relative mb-20 ${index % 2 === 0 ? "md:pr-1/2 md:text-right" : "md:pl-1/2 md:ml-auto"
+                      }`}
                   >
                     {/* Decorative Dot */}
                     <div className="absolute left-0 md:left-1/2 top-0 w-6 h-6 bg-gradient-to-r from-pink-400 to-rose-400 rounded-full border-4 border-white transform -translate-x-1/2 md:translate-x-0 shadow-xl shadow-pink-200">

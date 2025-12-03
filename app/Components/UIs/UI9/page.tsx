@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import type React from "react"
 import { useRouter } from 'next/navigation'
 import emailjs from '@emailjs/browser';
+import { useParams } from 'next/navigation'
 
 interface UserData {
   hero: {
@@ -68,6 +69,7 @@ export default function FuturisticPortfolio() {
   const [activeSection, setActiveSection] = useState('home')
 
   const router = useRouter()
+  const params = useParams()
   const { scrollYProgress } = useScroll()
   const scaleProgress = useTransform(scrollYProgress, [0, 1], [0, 1])
 
@@ -128,31 +130,15 @@ export default function FuturisticPortfolio() {
   };
 
   useEffect(() => {
-    const getUserFromStorage = () => {
-      try {
-        const userStr = localStorage.getItem('user')
-        if (userStr) {
-          const user = JSON.parse(userStr)
-          setUsername(user.userName || user.username || '')
-          setUserName(user.userName || user.name || 'Portfolio')
-          setuserEmail(user.email || '')
-          return user.userName || user.username || ''
-        }
-      } catch (error) {
-        console.error('Error parsing user from localStorage:', error)
-      }
-      return ''
-    }
+    const usernameFromUrl = params.username as string
 
-    const currentUsername = getUserFromStorage()
-
-    if (currentUsername) {
-      fetchUserData(currentUsername)
+    if (usernameFromUrl) {
+      fetchUserData(usernameFromUrl)
     } else {
-      alert('❌ Please login first')
-      router.push(`/Components/Auth/SignIn`)
+      alert('❌ Username not found in URL')
+      router.push('/Components/Auth/SignIn')
     }
-  }, [])
+  }, [params.username])
 
   const fetchUserData = async (username: string) => {
     try {
