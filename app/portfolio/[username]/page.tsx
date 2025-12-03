@@ -9,6 +9,10 @@ import UI3 from '../../Components/UIs/UI3/page';
 import UI4 from '../../Components/UIs/UI4/page';
 import UI5 from '../../Components/UIs/UI5/page';
 import UI6 from '../../Components/UIs/UI6/page';
+import UI7 from '../../Components/UIs/UI7/page';
+import UI8 from '../../Components/UIs/UI8/page';
+import UI9 from '../../Components/UIs/UI9/page';
+import UI10 from '../../Components/UIs/UI10/page';
 
 export default function Portfolio() {
   const params = useParams();
@@ -59,6 +63,10 @@ export default function Portfolio() {
     UI4: <UI4 />,
     UI5: <UI5 />,
     UI6: <UI6 />,
+    UI7: <UI7 />,
+    UI8: <UI8 />,
+    UI9: <UI9 />,
+    UI10: <UI10 />,
   };
 
   return templates[selectedTemplate] || <UI1 />;
