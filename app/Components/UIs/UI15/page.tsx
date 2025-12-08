@@ -153,8 +153,7 @@ export default function InnovatePortfolio() {
         setUserName(data.userName || data.name || 'Portfolio')
         setuserEmail(data.email || '')
       } else {
-        // alert('❌ User not found!!!!!')
-        // mdfmkdm
+        // alert('❌ User not found!')
         router.push('/Components/Auth/SignIn')
       }
     } catch (error) {
