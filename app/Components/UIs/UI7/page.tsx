@@ -144,12 +144,22 @@ export default function ModernLightPortfolio() {
     try {
       setLoading(true)
       const response = await fetch(`${API_BASE}/profile/${username}`)
+
       if (response.ok) {
         const data = await response.json()
+
+        // Set all user information from the API response
         setUserData(data)
+        setUsername(data.userName || data.username || '')
+        setUserName(data.userName || data.name || 'Portfolio')
+        setuserEmail(data.email || '')
+      } else {
+        // alert('❌ User not found')
+        router.push('/Components/Auth/SignIn')
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
+      alert('❌ Error loading portfolio')
     } finally {
       setLoading(false)
     }

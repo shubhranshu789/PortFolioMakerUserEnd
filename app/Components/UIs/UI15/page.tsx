@@ -73,6 +73,7 @@ export default function InnovatePortfolio() {
   const { scrollYProgress } = useScroll()
   const scaleProgress = useTransform(scrollYProgress, [0, 1], [0, 1])
 
+  const [USERNAME, setUsername] = useState('')
   const [userName, setUserName] = useState('Portfolio')
   const [userEmail, setuserEmail] = useState('')
   const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}`;
@@ -138,16 +139,26 @@ export default function InnovatePortfolio() {
     }
   }, [params.username])
 
-  const fetchUserData = async (username: string) => {
+ const fetchUserData = async (username: string) => {
     try {
       setLoading(true)
       const response = await fetch(`${API_BASE}/profile/${username}`)
+
       if (response.ok) {
         const data = await response.json()
+
+        // Set all user information from the API response
         setUserData(data)
+        setUsername(data.userName || data.username || '')
+        setUserName(data.userName || data.name || 'Portfolio')
+        setuserEmail(data.email || '')
+      } else {
+        // alert('❌ User not found')
+        router.push('/Components/Auth/SignIn')
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
+      alert('❌ Error loading portfolio')
     } finally {
       setLoading(false)
     }
