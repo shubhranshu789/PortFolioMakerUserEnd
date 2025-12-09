@@ -59,6 +59,12 @@ interface UserData {
     href: string
     color: string
   }>
+
+  certifications: Array<{
+    title: string
+    description: string
+    issueDate: string
+  }>
 }
 
 export default function FemininePortfolio() {

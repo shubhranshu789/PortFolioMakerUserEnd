@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation'
 import emailjs from '@emailjs/browser';
 import { useParams } from 'next/navigation'
 
-
 interface UserData {
   hero: {
     title: string
@@ -60,6 +59,12 @@ interface UserData {
     href: string
     color: string
   }>
+
+  certifications: Array<{
+    title: string
+    description: string
+    issueDate: string
+  }>
 }
 
 export default function InnovatePortfolio() {
@@ -73,12 +78,12 @@ export default function InnovatePortfolio() {
   const { scrollYProgress } = useScroll()
   const scaleProgress = useTransform(scrollYProgress, [0, 1], [0, 1])
 
-  const [USERNAME, setUsername] = useState('')
   const [userName, setUserName] = useState('Portfolio')
   const [userEmail, setuserEmail] = useState('')
   const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}`;
 
   const [submitted, setSubmitted] = useState(false);
+  const [showAllCertificates, setShowAllCertificates] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -128,6 +133,7 @@ export default function InnovatePortfolio() {
     }
   };
 
+
   useEffect(() => {
     const usernameFromUrl = params.username as string
 
@@ -139,7 +145,7 @@ export default function InnovatePortfolio() {
     }
   }, [params.username])
 
- const fetchUserData = async (username: string) => {
+  const fetchUserData = async (username: string) => {
     try {
       setLoading(true)
       const response = await fetch(`${API_BASE}/profile/${username}`)
@@ -149,11 +155,11 @@ export default function InnovatePortfolio() {
 
         // Set all user information from the API response
         setUserData(data)
-        setUsername(data.userName || data.username || '')
+        setUserName(data.userName || data.username || '')
         setUserName(data.userName || data.name || 'Portfolio')
         setuserEmail(data.email || '')
       } else {
-        // alert('❌ User not found!')
+        // alert('❌ User not found')
         router.push('/Components/Auth/SignIn')
       }
     } catch (error) {
@@ -176,9 +182,10 @@ export default function InnovatePortfolio() {
     { label: "HOME", href: "#home" },
     { label: "ABOUT", href: "#about" },
     { label: "WORK", href: "#projects" },
+    { label: "Certifications", href: "#certifications" },
     { label: "SERVICES", href: "#skills" },
     { label: "CONTACT", href: "#contact" },
-    // { label: "DASHBOARD", href: "/Components/DashBoard" },
+    { label: "DASHBOARD", href: "/Components/DashBoard" },
   ]
 
   const currentYear = new Date().getFullYear()
@@ -252,15 +259,15 @@ export default function InnovatePortfolio() {
     <div className="w-full bg-[#0a0a0a] text-white overflow-x-hidden relative">
       {/* Subtle Grid Background */}
       <div className="fixed inset-0 z-0 opacity-[0.03]">
-        <div 
-          className="absolute inset-0" 
+        <div
+          className="absolute inset-0"
           style={{
             backgroundImage: `
               linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
               linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
             `,
             backgroundSize: '50px 50px'
-          }} 
+          }}
         />
       </div>
 
@@ -274,11 +281,10 @@ export default function InnovatePortfolio() {
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`fixed top-0 w-full z-40 transition-all duration-500 ${
-          scrolled 
-            ? "bg-black/90 backdrop-blur-2xl border-b border-white/5" 
-            : "bg-transparent"
-        }`}
+        className={`fixed top-0 w-full z-40 transition-all duration-500 ${scrolled
+          ? "bg-black/90 backdrop-blur-2xl border-b border-white/5"
+          : "bg-transparent"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 flex justify-between items-center">
           {/* Logo */}
@@ -345,9 +351,9 @@ export default function InnovatePortfolio() {
       </motion.nav>
 
       {/* HERO SECTION - Responsive with Animated Visualization */}
-      <section 
-        style={{ marginTop: "80px" }} 
-        id="home" 
+      <section
+        style={{ marginTop: "80px" }}
+        id="home"
         className="relative min-h-screen flex items-center px-4 sm:px-6 lg:px-8 overflow-hidden"
       >
         {/* Gradient Overlay */}
@@ -371,7 +377,7 @@ export default function InnovatePortfolio() {
             {/* Main Headline - Responsive Text Sizes */}
             <motion.div variants={fadeInLeft}>
               <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black leading-[0.9] mb-6 md:mb-10">
-                <motion.span 
+                <motion.span
                   className="block text-white mb-1 md:mb-2"
                   initial={{ opacity: 0, x: -50 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -379,7 +385,7 @@ export default function InnovatePortfolio() {
                 >
                   INNOVATE
                 </motion.span>
-                <motion.span 
+                <motion.span
                   className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-600"
                   initial={{ opacity: 0, x: -50 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -387,7 +393,7 @@ export default function InnovatePortfolio() {
                 >
                   FOR DESIGN
                 </motion.span>
-                <motion.span 
+                <motion.span
                   className="block text-white"
                   initial={{ opacity: 0, x: -50 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -399,7 +405,7 @@ export default function InnovatePortfolio() {
             </motion.div>
 
             {/* Tagline */}
-            <motion.div 
+            <motion.div
               variants={fadeInLeft}
               className="mb-8 md:mb-12 max-w-md"
             >
@@ -428,7 +434,7 @@ export default function InnovatePortfolio() {
             </motion.div>
           </motion.div>
 
-          
+
         </div>
 
         {/* Bottom Right Info - Hidden on Mobile */}
@@ -470,7 +476,7 @@ export default function InnovatePortfolio() {
                 </span>
               </motion.div>
 
-              <motion.h2 
+              <motion.h2
                 variants={fadeInLeft}
                 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white mb-8 md:mb-12 leading-tight uppercase"
               >
@@ -478,7 +484,7 @@ export default function InnovatePortfolio() {
               </motion.h2>
 
               {/* Stats Grid - Responsive */}
-              <motion.div 
+              <motion.div
                 variants={staggerContainer}
                 className="grid grid-cols-2 gap-4 md:gap-6 lg:gap-8"
               >
@@ -499,7 +505,7 @@ export default function InnovatePortfolio() {
                         whileHover={{ y: -5 }}
                         className="p-4 md:p-6 lg:p-8 bg-white/5 border border-white/10 rounded-sm backdrop-blur-sm"
                       >
-                        <motion.div 
+                        <motion.div
                           className={`text-4xl sm:text-5xl md:text-6xl font-black bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent mb-2 md:mb-3`}
                           initial={{ scale: 0 }}
                           whileInView={{ scale: 1 }}
@@ -690,6 +696,186 @@ export default function InnovatePortfolio() {
         </section>
       )}
 
+      {/* CERTIFICATIONS SECTION - Responsive Modal Design */}
+      {userData.certifications && userData.certifications.length > 0 && (
+        <section id="certifications" className="relative py-16 md:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 border-t border-white/5">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeInUp}
+              className="mb-12 md:mb-16 lg:mb-20"
+            >
+              <span className="text-[10px] md:text-xs font-medium tracking-[0.2em] md:tracking-[0.3em] text-orange-500 uppercase border-l-2 border-orange-500 pl-3 md:pl-4 mb-6 md:mb-8 inline-block">
+                CERTIFICATIONS
+              </span>
+              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white uppercase">
+                CREDENTIALS & <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-yellow-500">AWARDS</span>
+              </h2>
+            </motion.div>
+
+            {userData.certifications && userData.certifications.length > 0 ? (
+              <>
+                <motion.div
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  variants={staggerContainer}
+                  className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+                >
+                  {userData.certifications.slice(0, 6).map((cert, index) => (
+                    <motion.div
+                      key={index}
+                      variants={scaleIn}
+                      whileHover={{ y: -10 }}
+                      onClick={() => setShowAllCertificates(true)}
+                      className="group p-6 md:p-8 bg-white/5 border border-white/10 rounded-sm hover:bg-white/10 hover:border-orange-500/50 transition-all duration-500 cursor-pointer"
+                    >
+                      <div className="mb-6 md:mb-8">
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-sm flex items-center justify-center text-2xl md:text-3xl mb-4 md:mb-6 group-hover:scale-110 transition-transform">
+                          🏆
+                        </div>
+                        <h3 className="text-lg md:text-xl font-black text-white uppercase mb-3 md:mb-4 group-hover:text-orange-500 transition-colors leading-tight">
+                          {cert.title}
+                        </h3>
+                        <div className="w-10 md:w-12 h-[2px] bg-gradient-to-r from-orange-500 to-transparent group-hover:w-16 md:group-hover:w-20 transition-all mb-4 md:mb-6" />
+                      </div>
+
+                      <p className="text-gray-400 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed line-clamp-3">
+                        {cert.description}
+                      </p>
+
+                      <div className="flex items-center gap-2 text-orange-500 text-[10px] md:text-xs uppercase tracking-widest">
+                        <span>📅</span>
+                        {cert.issueDate}
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+                {/* View All Button */}
+                {userData.certifications.length > 6 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="text-center mt-12 md:mt-16"
+                  >
+                    <motion.button
+                      whileHover={{ scale: 1.05, x: 10 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setShowAllCertificates(true)}
+                      className="group inline-flex items-center gap-3 md:gap-4 px-8 md:px-10 py-4 md:py-5 bg-gradient-to-r from-orange-500 to-yellow-600 text-black font-bold rounded-sm uppercase tracking-widest text-xs md:text-sm"
+                    >
+                      VIEW ALL {userData.certifications.length} CERTIFICATIONS
+                      <ExternalLink className="group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" size={18} />
+                    </motion.button>
+                  </motion.div>
+                )}
+
+                {/* Modal for All Certifications */}
+                <AnimatePresence>
+                  {showAllCertificates && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setShowAllCertificates(false)}
+                      className="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4 overflow-y-auto"
+                    >
+                      <motion.div
+                        initial={{ scale: 0.9, opacity: 0, y: 50 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.9, opacity: 0, y: 50 }}
+                        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-7xl bg-[#0a0a0a] border-2 border-orange-500/50 rounded-sm p-6 md:p-10 lg:p-12 my-8"
+                      >
+                        {/* Modal Header */}
+                        <div className="flex justify-between items-center mb-8 md:mb-12 pb-6 md:pb-8 border-b border-white/10">
+                          <div>
+                            <span className="text-[10px] md:text-xs font-medium tracking-[0.2em] md:tracking-[0.3em] text-orange-500 uppercase border-l-2 border-orange-500 pl-3 md:pl-4 mb-3 md:mb-4 inline-block">
+                              ALL CERTIFICATIONS
+                            </span>
+                            <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase">
+                              MY <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-yellow-500">CREDENTIALS</span>
+                            </h3>
+                          </div>
+
+                          <motion.button
+                            whileHover={{ scale: 1.1, rotate: 90 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setShowAllCertificates(false)}
+                            className="w-10 h-10 md:w-12 md:h-12 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center hover:bg-orange-500/10 hover:border-orange-500/50 transition-all flex-shrink-0"
+                          >
+                            <X size={24} className="text-white" />
+                          </motion.button>
+                        </div>
+
+                        {/* Modal Content - Scrollable Grid */}
+                        <div className="max-h-[60vh] md:max-h-[65vh] overflow-y-auto pr-2 md:pr-4 custom-scrollbar">
+                          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                            {userData.certifications.map((cert, index) => (
+                              <motion.div
+                                key={index}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                                whileHover={{ y: -5 }}
+                                className="group p-5 md:p-6 lg:p-8 bg-white/5 border border-white/10 rounded-sm hover:bg-white/10 hover:border-orange-500/50 transition-all duration-500"
+                              >
+                                <div className="mb-4 md:mb-6">
+                                  <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-sm flex items-center justify-center text-xl md:text-2xl mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                                    🏆
+                                  </div>
+                                  <h4 className="text-base md:text-lg font-black text-white uppercase mb-2 md:mb-3 group-hover:text-orange-500 transition-colors leading-tight">
+                                    {cert.title}
+                                  </h4>
+                                  <div className="w-8 md:w-10 h-[2px] bg-gradient-to-r from-orange-500 to-transparent group-hover:w-12 md:group-hover:w-16 transition-all mb-3 md:mb-4" />
+                                </div>
+
+                                <p className="text-gray-400 text-xs md:text-sm mb-3 md:mb-4 leading-relaxed">
+                                  {cert.description}
+                                </p>
+
+                                <div className="flex items-center gap-2 text-orange-500 text-[10px] md:text-xs uppercase tracking-widest">
+                                  <span>📅</span>
+                                  {cert.issueDate}
+                                </div>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Bottom gradient overlay for scroll indication */}
+                        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#0a0a0a] to-transparent pointer-events-none" />
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
+            ) : (
+              <div className="text-center py-16 md:py-20">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  className="inline-block p-8 md:p-12 bg-white/5 border border-white/10 rounded-sm"
+                >
+                  <div className="text-4xl md:text-5xl mb-4 md:mb-6">📜</div>
+                  <p className="text-gray-500 text-base md:text-lg font-bold uppercase tracking-wider">
+                    No certifications added yet
+                  </p>
+                </motion.div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+
+
       {/* PROJECTS SECTION - Responsive Grid */}
       <section id="projects" className="relative py-16 md:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 border-t border-white/5">
         <div className="max-w-7xl mx-auto">
@@ -737,9 +923,9 @@ export default function InnovatePortfolio() {
                         <Target size={60} className="text-gray-700 md:w-20 md:h-20" />
                       </div>
                     )}
-                    
+
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    
+
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       whileHover={{ opacity: 1, y: 0 }}
@@ -898,17 +1084,21 @@ export default function InnovatePortfolio() {
             >
               <div className="flex justify-center gap-4 md:gap-6 lg:gap-8 flex-wrap">
                 {userData.socialLinks.map((social, index) => (
-                  <motion.a
-                    key={index}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ y: -5, scale: 1.1 }}
-                    className="w-10 h-10 md:w-12 md:h-12 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center hover:bg-orange-500/10 hover:border-orange-500/50 transition-all text-xl md:text-2xl"
-                    style={{ color: social.color }}
-                  >
-                    {social.icon}
-                  </motion.a>
+                  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }} >
+                    <motion.a
+                      key={index}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ y: -5, scale: 1.1 }}
+                      className="w-10 h-10 md:w-12 md:h-12 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center hover:bg-orange-500/10 hover:border-orange-500/50 transition-all text-xl md:text-2xl"
+                      style={{ color: social.color }}
+                    >
+                      {social.icon}
+                    </motion.a>
+
+                    <p>{social.label}</p>
+                  </div>
                 ))}
               </div>
             </motion.div>

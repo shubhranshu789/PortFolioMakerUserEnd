@@ -18,6 +18,11 @@ import UI12 from '../../Components/UIs/UI12/page';
 import UI13 from '../../Components/UIs/UI13/page';
 import UI14 from '../../Components/UIs/UI14/page';
 import UI15 from '../../Components/UIs/UI15/page';
+import UI16 from '../../Components/UIs/UI16/page';
+import UI17 from '../../Components/UIs/UI17/page';
+import UI18 from '../../Components/UIs/UI18/page';
+import UI19 from '../../Components/UIs/UI19/page';
+import UI20 from '../../Components/UIs/UI20/page';
 
 export default function Portfolio() {
   const params = useParams();
@@ -77,6 +82,11 @@ export default function Portfolio() {
     UI13: <UI13 />,
     UI14: <UI14 />,
     UI15: <UI15 />,
+    UI16: <UI16 />,
+    UI17: <UI17 />,
+    UI18: <UI18 />,
+    UI19: <UI19 />,
+    UI20: <UI20 />,
   };
 
   return templates[selectedTemplate] || <UI1 />;

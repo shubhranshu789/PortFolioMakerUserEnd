@@ -2,18 +2,17 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { 
-  Menu, X, Github, Mail, Linkedin, Twitter, ExternalLink, 
-  ArrowRight, Send, Sparkles, Zap, Cpu, Terminal, Code2, Rocket, 
-  Heart, Star, Award, TrendingUp, Coffee, Book, Briefcase, 
-  MessageCircle, Play, Pause, Sun, Moon, Download, MapPin
+import {
+  Menu, X, Github, Mail, Linkedin, Twitter, ExternalLink,
+  ArrowRight, Send, Sparkles, Zap, Cpu, Terminal, Code2, Rocket,
+  Heart, Star, Award, TrendingUp, Coffee, Book, Briefcase,
+  MessageCircle, Play, Pause, Sun, Moon, Download, MapPin, Eye
 } from "lucide-react"
 import { motion, useScroll, useTransform, AnimatePresence, useSpring } from "framer-motion"
 import type React from "react"
 import { useRouter } from 'next/navigation'
 import emailjs from '@emailjs/browser';
 import { useParams } from 'next/navigation'
-
 
 interface UserData {
   hero: {
@@ -65,6 +64,11 @@ interface UserData {
     href: string
     color: string
   }>
+  certifications: Array<{
+    title: string
+    description: string
+    issueDate: string
+  }>
 }
 
 export default function LightThemePortfolio() {
@@ -85,6 +89,7 @@ export default function LightThemePortfolio() {
   const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}`;
 
   const [submitted, setSubmitted] = useState(false);
+  const [showAllCertificates, setShowAllCertificates] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -146,7 +151,7 @@ export default function LightThemePortfolio() {
     }
   }, [params.username])
 
- const fetchUserData = async (username: string) => {
+  const fetchUserData = async (username: string) => {
     try {
       setLoading(true)
       const response = await fetch(`${API_BASE}/profile/${username}`)
@@ -174,7 +179,7 @@ export default function LightThemePortfolio() {
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
-      
+
       const sections = ['home', 'about', 'skills', 'projects', 'contact']
       for (const section of sections) {
         const element = document.getElementById(section)
@@ -196,8 +201,9 @@ export default function LightThemePortfolio() {
     { label: "About", href: "#about" },
     { label: "Skills", href: "#skills" },
     { label: "Work", href: "#projects" },
+    { label: "Certifications", href: "#certifications" },
     { label: "Contact", href: "#contact" },
-    // { label: "Dashboard", href: "/Components/DashBoard" },
+    { label: "Dashboard", href: "/Components/DashBoard" },
   ]
 
   const currentYear = new Date().getFullYear()
@@ -255,10 +261,10 @@ export default function LightThemePortfolio() {
     visible: {
       opacity: 1,
       scale: 1,
-      transition: { 
-        type: "spring", 
-        stiffness: 200, 
-        damping: 15 
+      transition: {
+        type: "spring",
+        stiffness: 200,
+        damping: 15
       }
     }
   }
@@ -356,11 +362,10 @@ export default function LightThemePortfolio() {
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className={`fixed top-0 w-full z-40 transition-all duration-300 ${
-          scrolled 
-            ? "bg-white/80 backdrop-blur-xl shadow-lg shadow-purple-100/50" 
-            : "bg-transparent"
-        }`}
+        className={`fixed top-0 w-full z-40 transition-all duration-300 ${scrolled
+          ? "bg-white/80 backdrop-blur-xl shadow-lg shadow-purple-100/50"
+          : "bg-transparent"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-6 py-5">
           <div className="flex justify-between items-center">
@@ -392,11 +397,10 @@ export default function LightThemePortfolio() {
                   href={link.href}
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
-                    activeSection === link.href.replace('#', '')
-                      ? 'bg-gradient-to-r from-rose-400 to-purple-500 text-white shadow-lg shadow-purple-300/50'
-                      : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
-                  }`}
+                  className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${activeSection === link.href.replace('#', '')
+                    ? 'bg-gradient-to-r from-rose-400 to-purple-500 text-white shadow-lg shadow-purple-300/50'
+                    : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+                    }`}
                 >
                   {link.label}
                 </motion.a>
@@ -891,6 +895,442 @@ export default function LightThemePortfolio() {
         </section>
       )}
 
+      {/* CERTIFICATIONS SECTION - Light & Playful */}
+      {userData.certifications && userData.certifications.length > 0 && (
+        <section id="certifications" className="relative py-24 px-6">
+          <div className="max-w-7xl mx-auto">
+            {/* Header */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeInUp}
+              className="text-center mb-16"
+            >
+              <motion.div
+                variants={bounceIn}
+                className="inline-flex items-center gap-2 px-5 py-2 bg-white rounded-full shadow-lg mb-6"
+              >
+                <Award className="text-purple-500" size={18} />
+                <span className="text-sm font-bold text-gray-700">Certifications</span>
+              </motion.div>
+
+              <h2 className="text-5xl lg:text-6xl font-black mb-6">
+                <span className="text-gray-800">Verified </span>
+                <span className="bg-gradient-to-r from-rose-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+                  Achievements
+                </span>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Professional credentials and continuous learning journey
+              </p>
+            </motion.div>
+
+            {/* Certifications Grid */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {userData.certifications.slice(0, 6).map((cert, index) => (
+                <motion.div
+                  key={index}
+                  variants={scaleIn}
+                  whileHover={{ y: -10, scale: 1.02 }}
+                  className="group"
+                >
+                  <div className="relative h-full bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all overflow-hidden p-8">
+
+                    {/* Gradient Background on Hover */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      whileHover={{ opacity: 1 }}
+                      className="absolute inset-0 bg-gradient-to-br from-rose-50 via-purple-50 to-blue-50 transition-opacity"
+                    />
+
+                    {/* Floating Trophy Badge */}
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      whileInView={{ scale: 1, rotate: 0 }}
+                      viewport={{ once: true }}
+                      transition={{
+                        delay: index * 0.1 + 0.2,
+                        type: "spring",
+                        stiffness: 200,
+                        damping: 15
+                      }}
+                      animate={{
+                        y: [0, -5, 0],
+                      }}
+                      transition={{
+                        y: {
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }
+                      }}
+                      className="absolute top-6 right-6 z-10"
+                    >
+                      <div className="w-14 h-14 bg-gradient-to-br from-rose-400 via-purple-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-300/50">
+                        <span className="text-2xl">🏆</span>
+                      </div>
+                    </motion.div>
+
+                    <div className="relative z-10 flex flex-col h-full">
+                      {/* Certificate Icon */}
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        whileInView={{ scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{
+                          delay: index * 0.1 + 0.3,
+                          type: "spring",
+                          stiffness: 150
+                        }}
+                        className="mb-6"
+                      >
+                        <motion.div
+                          whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                          transition={{ duration: 0.5 }}
+                          className="w-20 h-20 bg-gradient-to-br from-rose-100 via-purple-100 to-blue-100 rounded-2xl flex items-center justify-center group-hover:shadow-xl transition-shadow"
+                        >
+                          <motion.div
+                            animate={{ rotate: [0, 360] }}
+                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                            className="w-16 h-16 bg-gradient-to-br from-rose-400 to-purple-500 rounded-xl flex items-center justify-center"
+                          >
+                            <Star className="text-white" size={28} />
+                          </motion.div>
+                        </motion.div>
+                      </motion.div>
+
+                      {/* Title */}
+                      <motion.h3
+                        whileHover={{ scale: 1.02 }}
+                        className="text-xl font-black text-gray-800 mb-4 leading-tight group-hover:text-purple-600 transition-colors"
+                      >
+                        {cert.title}
+                      </motion.h3>
+
+                      {/* Issue Date Badge */}
+                      <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 + 0.4 }}
+                        className="mb-5"
+                      >
+                        <motion.div
+                          whileHover={{ scale: 1.05, y: -2 }}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full shadow-sm"
+                        >
+                          <motion.div
+                            animate={{ scale: [1, 1.3, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                            className="w-2 h-2 bg-purple-500 rounded-full"
+                          />
+                          <span className="text-purple-700 text-sm font-bold">{cert.issueDate}</span>
+                        </motion.div>
+                      </motion.div>
+
+                      {/* Description */}
+                      <p className="text-gray-600 leading-relaxed flex-grow text-sm mb-6 border-l-4 border-purple-300 pl-4">
+                        {cert.description}
+                      </p>
+
+                      {/* Bottom Gradient Bar with Animation */}
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: "100%" }}
+                        viewport={{ once: true }}
+                        transition={{
+                          delay: index * 0.1 + 0.5,
+                          duration: 0.8
+                        }}
+                        className="relative h-2 rounded-full overflow-hidden bg-gradient-to-r from-rose-200 via-purple-200 to-blue-200"
+                      >
+                        <motion.div
+                          animate={{
+                            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                          }}
+                          transition={{ duration: 3, repeat: Infinity }}
+                          className="absolute inset-0 bg-gradient-to-r from-rose-400 via-purple-500 to-blue-500"
+                          style={{ backgroundSize: "200% auto" }}
+                        />
+                      </motion.div>
+                    </div>
+
+                    {/* Decorative Corner Sparkles */}
+                    <motion.div
+                      animate={{
+                        scale: [1, 1.2, 1],
+                        rotate: [0, 180, 360],
+                      }}
+                      transition={{ duration: 4, repeat: Infinity }}
+                      className="absolute -bottom-2 -right-2 w-8 h-8 text-purple-300 opacity-50"
+                    >
+                      <Sparkles size={32} />
+                    </motion.div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* View More Button */}
+            {userData.certifications.length > 6 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center mt-12"
+              >
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowAllCertificates(true)}
+                  className="px-10 py-5 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-full font-black text-lg flex items-center gap-3 mx-auto shadow-xl shadow-purple-300/50"
+                >
+                  <Eye size={24} />
+                  VIEW ALL {userData.certifications.length} CERTIFICATIONS
+                </motion.button>
+              </motion.div>
+            )}
+
+            {/* Total Count Display */}
+            {userData.certifications.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 }}
+                className="mt-16 flex justify-center"
+              >
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="relative inline-flex items-center gap-10 px-16 py-10 bg-white rounded-3xl shadow-2xl overflow-hidden"
+                >
+                  {/* Animated Background Gradient */}
+                  <motion.div
+                    animate={{
+                      backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
+                    }}
+                    transition={{ duration: 10, repeat: Infinity }}
+                    className="absolute inset-0 bg-gradient-to-br from-rose-50 via-purple-50 to-blue-50 opacity-70"
+                  />
+
+                  {/* Rotating Icon */}
+                  <motion.div
+                    animate={{
+                      rotate: [0, 10, -10, 0],
+                      scale: [1, 1.05, 1],
+                    }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                    className="relative z-10"
+                  >
+                    <div className="w-24 h-24 bg-gradient-to-br from-rose-400 via-purple-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-purple-300/50">
+                      <Award className="text-white" size={48} />
+                    </div>
+                    <motion.div
+                      animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute inset-0 bg-purple-400 rounded-2xl blur-xl"
+                    />
+                  </motion.div>
+
+                  <div className="relative z-10">
+                    <motion.p
+                      initial={{ scale: 0.5 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ type: "spring", stiffness: 200 }}
+                      className="text-7xl font-black bg-gradient-to-r from-rose-500 via-purple-500 to-blue-500 bg-clip-text text-transparent"
+                    >
+                      {userData.certifications.length}
+                    </motion.p>
+                    <p className="text-gray-600 text-sm font-bold mt-2 uppercase tracking-wider flex items-center gap-2">
+                      <motion.div
+                        animate={{ scale: [1, 1.5, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="w-2 h-2 bg-purple-500 rounded-full"
+                      />
+                      CERTIFICATIONS EARNED
+                    </p>
+                  </div>
+
+                  {/* Floating Sparkles */}
+                  {[...Array(6)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      animate={{
+                        y: [0, -20, 0],
+                        opacity: [0.2, 1, 0.2],
+                        rotate: [0, 180, 360],
+                      }}
+                      transition={{
+                        duration: 3 + i * 0.5,
+                        repeat: Infinity,
+                        delay: i * 0.3
+                      }}
+                      className="absolute text-purple-300"
+                      style={{
+                        left: `${15 + i * 15}%`,
+                        top: `${20 + (i % 3) * 20}%`
+                      }}
+                    >
+                      <Sparkles size={16} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Modal for All Certifications */}
+          <AnimatePresence>
+            {showAllCertificates && (
+              <>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowAllCertificates(false)}
+                  className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
+                >
+                  {/* Modal Content */}
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0, y: 50 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.9, opacity: 0, y: 50 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 250 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="bg-gradient-to-br from-rose-50 via-purple-50 to-blue-50 rounded-3xl max-w-7xl w-full max-h-[90vh] overflow-hidden shadow-2xl relative"
+                  >
+                    {/* Decorative Background */}
+                    <div className="absolute inset-0 opacity-30 pointer-events-none">
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.2, 1],
+                          rotate: [0, 90, 0],
+                        }}
+                        transition={{ duration: 20, repeat: Infinity }}
+                        className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-br from-rose-300 to-pink-300 rounded-full blur-3xl"
+                      />
+                      <motion.div
+                        animate={{
+                          scale: [1.2, 1, 1.2],
+                          rotate: [90, 0, 90],
+                        }}
+                        transition={{ duration: 25, repeat: Infinity }}
+                        className="absolute bottom-10 right-10 w-80 h-80 bg-gradient-to-br from-blue-300 to-purple-300 rounded-full blur-3xl"
+                      />
+                    </div>
+
+                    {/* Modal Header */}
+                    <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-xl border-b border-purple-200 p-10 flex justify-between items-center relative">
+                      <div>
+                        <h3 className="text-4xl font-black mb-3 flex items-center gap-4 uppercase tracking-tight">
+                          <motion.div
+                            animate={{
+                              rotate: [0, 10, -10, 0],
+                              scale: [1, 1.1, 1]
+                            }}
+                            transition={{ duration: 3, repeat: Infinity }}
+                            className="w-12 h-12 bg-gradient-to-br from-rose-400 via-purple-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg"
+                          >
+                            <Award size={24} className="text-white" />
+                          </motion.div>
+                          <span className="text-gray-800">ALL </span>
+                          <span className="bg-gradient-to-r from-rose-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+                            CERTIFICATIONS
+                          </span>
+                        </h3>
+                        <p className="text-gray-600 flex items-center gap-3 text-lg font-bold uppercase tracking-wide">
+                          <motion.div
+                            animate={{ scale: [1, 1.3, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                            className="w-3 h-3 bg-purple-500 rounded-full"
+                          />
+                          {userData.certifications.length} VERIFIED CREDENTIALS
+                        </p>
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.1, rotate: 90 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setShowAllCertificates(false)}
+                        className="w-14 h-14 bg-white rounded-2xl shadow-lg border-2 border-purple-200 flex items-center justify-center hover:border-purple-400 transition-all"
+                      >
+                        <X size={28} className="text-gray-700" />
+                      </motion.button>
+                    </div>
+
+                    {/* Modal Body - Scrollable */}
+                    <div className="p-10 overflow-y-auto max-h-[calc(90vh-200px)] relative">
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {userData.certifications.map((cert, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            whileHover={{ y: -8, scale: 1.02 }}
+                            className="group"
+                          >
+                            <div className="relative h-full bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all p-6 border-2 border-purple-100 hover:border-purple-300 overflow-hidden">
+
+                              {/* Hover gradient */}
+                              <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                              {/* Badge */}
+                              <div className="absolute top-4 right-4 w-10 h-10 bg-gradient-to-br from-rose-400 to-purple-500 rounded-xl flex items-center justify-center shadow-md">
+                                <span className="text-lg">🏆</span>
+                              </div>
+
+                              <div className="relative z-10">
+                                {/* Icon */}
+                                <div className="mb-4">
+                                  <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-blue-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-purple-200">
+                                    <Star size={28} className="text-purple-500" />
+                                  </div>
+                                </div>
+
+                                {/* Title */}
+                                <h4 className="text-lg font-black text-gray-800 mb-3 leading-tight group-hover:text-purple-600 transition-colors">
+                                  {cert.title}
+                                </h4>
+
+                                {/* Date */}
+                                <div className="mb-3">
+                                  <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full text-purple-700 text-xs font-bold">
+                                    <div className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse" />
+                                    {cert.issueDate}
+                                  </span>
+                                </div>
+
+                                {/* Description */}
+                                <p className="text-gray-600 text-sm leading-relaxed mb-4 border-l-4 border-purple-300 pl-3">
+                                  {cert.description}
+                                </p>
+
+                                {/* Bottom bar */}
+                                <div className="h-1.5 rounded-full bg-gradient-to-r from-rose-400 via-purple-500 to-blue-500 shadow-sm" />
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </section>
+      )}
+
+
       {/* PROJECTS SECTION - Pinterest Style */}
       <section id="projects" className="relative py-24 px-6 bg-gradient-to-b from-transparent via-blue-50/50 to-transparent">
         <div className="max-w-7xl mx-auto">
@@ -1124,18 +1564,22 @@ export default function LightThemePortfolio() {
                 </p>
                 <div className="flex justify-center gap-4">
                   {userData.socialLinks.map((social, index) => (
-                    <motion.a
-                      key={index}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      whileHover={{ y: -5, scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="w-14 h-14 bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-100 rounded-2xl flex items-center justify-center hover:border-purple-300 transition-all shadow-lg"
-                      style={{ color: social.color }}
-                    >
-                      <span className="text-2xl">{social.icon}</span>
-                    </motion.a>
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }} >
+                      <motion.a
+                        key={index}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        whileHover={{ y: -5, scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="w-14 h-14 bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-100 rounded-2xl flex items-center justify-center hover:border-purple-300 transition-all shadow-lg"
+                        style={{ color: social.color }}
+                      >
+                        <span className="text-2xl">{social.icon}</span>
+                      </motion.a>
+
+                      <p>{social.label}</p>
+                    </div>
                   ))}
                 </div>
               </div>

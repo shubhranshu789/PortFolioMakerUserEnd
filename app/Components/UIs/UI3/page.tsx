@@ -60,6 +60,12 @@ interface UserData {
     href: string
     color: string
   }>
+
+  certifications: Array<{
+    title: string
+    description: string
+    issueDate: string
+  }>
 }
 
 export default function UI3() {
@@ -70,7 +76,6 @@ export default function UI3() {
   const [activeSection, setActiveSection] = useState('home')
 
   const router = useRouter()
-    const params = useParams()
   const { scrollYProgress } = useScroll()
   const scaleProgress = useTransform(scrollYProgress, [0, 1], [0, 1])
 
@@ -82,6 +87,8 @@ export default function UI3() {
 
 
   const [submitted, setSubmitted] = useState(false);
+  const [showAllCertificates, setShowAllCertificates] = useState(false)
+  const params = useParams()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -96,14 +103,21 @@ export default function UI3() {
     e.preventDefault();
 
     try {
-      // Use the email from state (already fetched from API)
-      if (!userEmail) {
+      // Extract email from localStorage
+      const storedUser = localStorage.getItem('user');
+
+      if (!storedUser) {
         alert('Portfolio owner information not found');
         return;
       }
 
+      const userData = JSON.parse(storedUser);
+      const portfolioOwnerEmail = userData.email; // "Shubh5@gmail.com"
+
+      // Send email using your preferred method
+      // Option 1: EmailJS
       const templateParams = {
-        to_email: userEmail, // Email fetched from API
+        to_email: portfolioOwnerEmail, // Shubh5@gmail.com
         from_name: formData.name,
         from_email: formData.email,
         message: formData.message,
@@ -115,6 +129,18 @@ export default function UI3() {
         templateParams,
         'O8RoSh1QrCmKJeJn7'
       );
+
+      // OR Option 2: API Route
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientEmail: portfolioOwnerEmail, // Shubh5@gmail.com
+          senderName: formData.name,
+          senderEmail: formData.email,
+          message: formData.message,
+        }),
+      });
 
       setSubmitted(true);
       setTimeout(() => {
@@ -131,6 +157,8 @@ export default function UI3() {
 
 
 
+
+
   useEffect(() => {
     const usernameFromUrl = params.username as string
 
@@ -141,7 +169,6 @@ export default function UI3() {
       router.push('/Components/Auth/SignIn')
     }
   }, [params.username])
-
 
   const fetchUserData = async (username: string) => {
     try {
@@ -181,11 +208,12 @@ export default function UI3() {
     { label: "About", href: "#about" },
     { label: "Skills", href: "#skills" },
     { label: "Work", href: "#projects" },
+    { label: "Certifications", href: "#certifications" },
     { label: "Contact", href: "#contact" },
-    // { label: "Dashboard", href: "/Components/DashBoard" },
+    { label: "Dashboard", href: "/Components/DashBoard" },
   ]
 
- 
+
 
   const currentYear = new Date().getFullYear()
 
@@ -260,9 +288,8 @@ export default function UI3() {
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`fixed top-0 w-full z-40 transition-all duration-300 ${
-          scrolled ? "bg-black/90 backdrop-blur-xl border-b border-emerald-500/20" : "bg-transparent"
-        }`}
+        className={`fixed top-0 w-full z-40 transition-all duration-300 ${scrolled ? "bg-black/90 backdrop-blur-xl border-b border-emerald-500/20" : "bg-transparent"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
           <motion.div
@@ -334,10 +361,10 @@ export default function UI3() {
       </motion.nav>
 
       {/* Hero Section */}
-      <section style={{marginTop : "80px"}} id="home" className="relative min-h-screen flex items-center justify-center px-6 overflow-hidden">
+      <section style={{ marginTop: "80px" }} id="home" className="relative min-h-screen flex items-center justify-center px-6 overflow-hidden">
         {/* Animated Grid Background */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#0a0a0a_1px,transparent_1px),linear-gradient(to_bottom,#0a0a0a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
-        
+
         {/* Gradient Orbs */}
         <motion.div
           animate={{
@@ -428,7 +455,7 @@ export default function UI3() {
               ))}
             </motion.div> */}
 
-            
+
           </motion.div>
         </div>
 
@@ -590,75 +617,324 @@ export default function UI3() {
       </section>
 
       {/* Experience Section */}
-      <section id="experience" className="relative py-32 px-6 border-t border-white/5 bg-gradient-to-b from-black to-emerald-950/10">
-        <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            className="text-center mb-20"
-          >
-            <h2 className="text-5xl md:text-6xl font-bold mb-6">
-              Work <span className="text-emerald-500">Experience</span>
-            </h2>
-          </motion.div>
+      {userData.experiences && userData.experiences.length > 0 && (
+        <section id="experience" className="relative py-32 px-6 border-t border-white/5 bg-gradient-to-b from-black to-emerald-950/10">
+          <div className="max-w-5xl mx-auto">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeInUp}
+              className="text-center mb-20"
+            >
+              <h2 className="text-5xl md:text-6xl font-bold mb-6">
+                Work <span className="text-emerald-500">Experience</span>
+              </h2>
+            </motion.div>
 
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="relative"
-          >
-            {/* Timeline Line */}
-            <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-emerald-500 via-teal-500 to-transparent" />
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+              className="relative"
+            >
+              {/* Timeline Line */}
+              <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-emerald-500 via-teal-500 to-transparent" />
 
-            {userData.experiences.length > 0 ? (
-              userData.experiences.map((exp, index) => (
+              {userData.experiences.length > 0 ? (
+                userData.experiences.map((exp, index) => (
+                  <motion.div
+                    key={index}
+                    variants={fadeInUp}
+                    className={`relative mb-16 ${index % 2 === 0 ? "md:pr-1/2 md:text-right" : "md:pl-1/2 md:ml-auto"
+                      }`}
+                  >
+                    {/* Timeline Dot */}
+                    <div className="absolute left-0 md:left-1/2 top-0 w-4 h-4 bg-emerald-500 rounded-full border-4 border-black transform -translate-x-1/2 md:translate-x-0" />
+
+                    <motion.div
+                      whileHover={{ scale: 1.02, borderColor: "rgba(16, 185, 129, 0.5)" }}
+                      className="ml-8 md:ml-0 p-8 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl"
+                    >
+                      <div className="mb-4">
+                        <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-500 text-xs font-mono">
+                          {exp.period}
+                        </span>
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-2">
+                        {exp.role}
+                      </h3>
+                      <p className="text-emerald-500 font-medium mb-4">{exp.company}</p>
+                      <p className="text-gray-400 leading-relaxed mb-4">{exp.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {exp.skills.map((skill, idx) => (
+                          <span
+                            key={idx}
+                            className="px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-xs font-medium"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                ))
+              ) : (
+                <p className="text-center text-gray-400">No experience added yet</p>
+              )}
+            </motion.div>
+          </div>
+        </section>
+      )}
+
+      {/* Certifications Section */}
+      {userData.certifications && userData.certifications.length > 0 && (
+        <section id="certifications" className="relative py-32 px-6 border-t border-white/5">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeInUp}
+              className="text-center mb-20"
+            >
+              <h2 className="text-5xl md:text-6xl font-bold mb-6">
+                Certifications & <span className="text-emerald-500">Achievements</span>
+              </h2>
+              <p className="text-gray-400 text-xl max-w-2xl mx-auto">
+                Professional certifications and credentials earned along the journey
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              {userData.certifications.slice(0, 6).map((cert, index) => (
                 <motion.div
                   key={index}
-                  variants={fadeInUp}
-                  className={`relative mb-16 ${
-                    index % 2 === 0 ? "md:pr-1/2 md:text-right" : "md:pl-1/2 md:ml-auto"
-                  }`}
+                  variants={scaleIn}
+                  whileHover={{ y: -10, scale: 1.02 }}
+                  className="group relative"
                 >
-                  {/* Timeline Dot */}
-                  <div className="absolute left-0 md:left-1/2 top-0 w-4 h-4 bg-emerald-500 rounded-full border-4 border-black transform -translate-x-1/2 md:translate-x-0" />
+                  <div className="relative h-full p-8 bg-white/5 backdrop-blur-sm border border-white/10 hover:border-emerald-500/50 rounded-2xl transition-all overflow-hidden">
 
-                  <motion.div
-                    whileHover={{ scale: 1.02, borderColor: "rgba(16, 185, 129, 0.5)" }}
-                    className="ml-8 md:ml-0 p-8 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl"
-                  >
-                    <div className="mb-4">
-                      <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-500 text-xs font-mono">
-                        {exp.period}
-                      </span>
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-2">
-                      {exp.role}
-                    </h3>
-                    <p className="text-emerald-500 font-medium mb-4">{exp.company}</p>
-                    <p className="text-gray-400 leading-relaxed mb-4">{exp.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {exp.skills.map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-xs font-medium"
-                        >
-                          {skill}
+                    {/* Gradient overlay on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-teal-500/0 group-hover:from-emerald-500/10 group-hover:to-teal-500/10 transition-all duration-300 rounded-2xl" />
+
+                    {/* Badge Icon */}
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      whileInView={{ scale: 1, rotate: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.1, type: "spring", stiffness: 200 }}
+                      className="absolute top-6 right-6 w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg"
+                    >
+                      <span className="text-2xl">🏆</span>
+                    </motion.div>
+
+                    <div className="relative z-10 flex flex-col h-full">
+                      {/* Certificate Icon */}
+                      <div className="mb-6">
+                        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center">
+                          <span className="text-4xl">🎓</span>
+                        </div>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-2xl font-bold text-white mb-4 leading-tight group-hover:text-emerald-500 transition-colors">
+                        {cert.title}
+                      </h3>
+
+                      {/* Issue Date Badge */}
+                      <div className="mb-4">
+                        <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-500 text-xs font-mono">
+                          <span>📅</span>
+                          {cert.issueDate}
                         </span>
-                      ))}
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-gray-400 leading-relaxed flex-grow">
+                        {cert.description}
+                      </p>
+
+                      {/* Bottom gradient line */}
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: "100%" }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 + 0.5, duration: 0.6 }}
+                        className="h-1 mt-6 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500"
+                      />
+                    </div>
+
+                    {/* Decorative corner elements */}
+                    <div className="absolute bottom-4 left-4 w-6 h-6 border-l-2 border-b-2 border-emerald-500/30 rounded-bl-lg" />
+                    <div className="absolute top-4 left-4 w-6 h-6 border-l-2 border-t-2 border-emerald-500/30 rounded-tl-lg" />
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* View More Button */}
+            {userData.certifications.length > 6 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center mt-16"
+              >
+                <motion.button
+                  whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(16, 185, 129, 0.5)" }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowAllCertificates(true)}
+                  className="px-8 py-4 bg-emerald-500 text-black font-bold rounded-full hover:bg-emerald-400 transition-all flex items-center gap-3 mx-auto"
+                >
+                  View All {userData.certifications.length} Certifications
+                  <ArrowRight size={20} />
+                </motion.button>
+              </motion.div>
+            )}
+
+            {/* Total Count Display */}
+            {userData.certifications.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 }}
+                className="mt-16 text-center"
+              >
+                <div className="inline-flex items-center gap-6 px-10 py-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full">
+                  <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    className="text-4xl"
+                  >
+                    ✨
+                  </motion.div>
+                  <div className="text-left">
+                    <p className="text-4xl font-bold text-emerald-500">
+                      {userData.certifications.length}
+                    </p>
+                    <p className="text-gray-400 text-sm font-medium">
+                      Certifications Earned
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Modal for All Certifications */}
+          <AnimatePresence>
+            {showAllCertificates && (
+              <>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowAllCertificates(false)}
+                  className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4"
+                >
+                  {/* Modal Content */}
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0, y: 50 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.9, opacity: 0, y: 50 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="bg-black/95 backdrop-blur-xl border border-emerald-500/30 rounded-3xl max-w-7xl w-full max-h-[90vh] overflow-hidden"
+                  >
+                    {/* Modal Header */}
+                    <div className="sticky top-0 z-10 bg-black/95 backdrop-blur-xl border-b border-white/10 p-8 flex justify-between items-center">
+                      <div>
+                        <h3 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                          All <span className="text-emerald-500">Certifications</span>
+                        </h3>
+                        <p className="text-gray-400">
+                          {userData.certifications.length} professional certifications
+                        </p>
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.1, rotate: 90 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setShowAllCertificates(false)}
+                        className="w-12 h-12 rounded-full bg-white/5 border border-white/10 hover:border-emerald-500/50 flex items-center justify-center text-white transition-all"
+                      >
+                        <X size={24} />
+                      </motion.button>
+                    </div>
+
+                    {/* Modal Body - Scrollable */}
+                    <div className="p-8 overflow-y-auto max-h-[calc(90vh-140px)]">
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {userData.certifications.map((cert, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.03 }}
+                            whileHover={{ y: -5, scale: 1.02 }}
+                            className="group relative"
+                          >
+                            <div className="relative h-full p-6 bg-white/5 border border-white/10 hover:border-emerald-500/50 rounded-2xl transition-all">
+
+                              {/* Hover gradient */}
+                              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-teal-500/0 group-hover:from-emerald-500/10 group-hover:to-teal-500/10 transition-all duration-300 rounded-2xl" />
+
+                              {/* Badge */}
+                              <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                                <span className="text-xl">🏆</span>
+                              </div>
+
+                              <div className="relative z-10">
+                                {/* Icon */}
+                                <div className="mb-4">
+                                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center">
+                                    <span className="text-3xl">🎓</span>
+                                  </div>
+                                </div>
+
+                                {/* Title */}
+                                <h4 className="text-xl font-bold text-white mb-3 leading-tight group-hover:text-emerald-500 transition-colors">
+                                  {cert.title}
+                                </h4>
+
+                                {/* Date */}
+                                <div className="mb-3">
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-500 text-xs font-mono">
+                                    📅 {cert.issueDate}
+                                  </span>
+                                </div>
+
+                                {/* Description */}
+                                <p className="text-gray-400 text-sm leading-relaxed">
+                                  {cert.description}
+                                </p>
+
+                                {/* Bottom line */}
+                                <div className="h-0.5 mt-4 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
                   </motion.div>
                 </motion.div>
-              ))
-            ) : (
-              <p className="text-center text-gray-400">No experience added yet</p>
+              </>
             )}
-          </motion.div>
-        </div>
-      </section>
+          </AnimatePresence>
+        </section>
+      )}
+
 
       {/* Projects Section */}
       <section id="projects" className="relative py-32 px-6 border-t border-white/5">
@@ -854,17 +1130,21 @@ export default function UI3() {
               <h3 className="text-2xl font-bold text-center mb-8">Connect with me</h3>
               <div className="flex justify-center gap-6">
                 {userData.socialLinks.map((social, index) => (
-                  <motion.a
-                    key={index}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ y: -5, scale: 1.1 }}
-                    className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:border-emerald-500/50 transition-all"
-                    style={{ color: social.color }}
-                  >
-                    {social.icon}
-                  </motion.a>
+                  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
+                    <motion.a
+                      key={index}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ y: -5, scale: 1.1 }}
+                      className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:border-emerald-500/50 transition-all"
+                      style={{ color: social.color }}
+                    >
+                      {social.icon}
+                    </motion.a>
+
+                    <p>{social.label}</p>
+                  </div>
                 ))}
               </div>
             </motion.div>

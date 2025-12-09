@@ -59,6 +59,12 @@ interface UserData {
     href: string
     color: string
   }>
+
+  certifications: Array<{
+    title: string
+    description: string
+    issueDate: string
+  }>
 }
 
 export default function UltraModernPortfolio() {
@@ -81,6 +87,7 @@ export default function UltraModernPortfolio() {
   const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}`;
 
   const [submitted, setSubmitted] = useState(false);
+  const [showAllCertificates, setShowAllCertificates] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -154,7 +161,7 @@ export default function UltraModernPortfolio() {
     }
   }, [params.username])
 
- const fetchUserData = async (username: string) => {
+  const fetchUserData = async (username: string) => {
     try {
       setLoading(true)
       const response = await fetch(`${API_BASE}/profile/${username}`)
@@ -192,8 +199,9 @@ export default function UltraModernPortfolio() {
     { label: "About", href: "#about" },
     { label: "Skills", href: "#skills" },
     { label: "Work", href: "#projects" },
+    { label: "Certifications", href: "#certifications" },
     { label: "Contact", href: "#contact" },
-    // { label: "Dashboard", href: "/Components/DashBoard" },
+    { label: "Dashboard", href: "/Components/DashBoard" },
   ]
 
   const currentYear = new Date().getFullYear()
@@ -296,7 +304,7 @@ export default function UltraModernPortfolio() {
       {/* Multi-Color Progress Bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-400 via-orange-400 to-violet-500 origin-left z-50"
-        style={{ 
+        style={{
           scaleX: scaleProgress,
           boxShadow: "0 0 30px rgba(16, 185, 129, 0.6)"
         }}
@@ -345,11 +353,10 @@ export default function UltraModernPortfolio() {
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`fixed top-0 w-full z-40 transition-all duration-500 ${
-          scrolled 
-            ? "bg-slate-950/70 backdrop-blur-2xl border-b border-emerald-400/20 shadow-2xl shadow-emerald-500/5" 
-            : "bg-transparent"
-        }`}
+        className={`fixed top-0 w-full z-40 transition-all duration-500 ${scrolled
+          ? "bg-slate-950/70 backdrop-blur-2xl border-b border-emerald-400/20 shadow-2xl shadow-emerald-500/5"
+          : "bg-transparent"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
           <motion.div
@@ -445,11 +452,11 @@ export default function UltraModernPortfolio() {
             variants={staggerContainer}
           >
             {/* Floating Badge */}
-            <motion.div 
-              variants={fadeInUp} 
+            <motion.div
+              variants={fadeInUp}
               className="mb-10 flex justify-center"
             >
-              <motion.span 
+              <motion.span
                 whileHover={{ scale: 1.05, rotate: 2 }}
                 className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-500/10 via-orange-500/10 to-violet-500/10 border-2 border-emerald-400/30 rounded-2xl text-emerald-400 text-sm font-black tracking-widest backdrop-blur-xl"
               >
@@ -467,7 +474,7 @@ export default function UltraModernPortfolio() {
             {/* Main Heading with Staggered Words */}
             <motion.div variants={fadeInUp} className="text-center mb-8">
               <motion.h1 className="text-6xl md:text-7xl lg:text-9xl font-black leading-tight mb-6">
-                <motion.span 
+                <motion.span
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
@@ -475,7 +482,7 @@ export default function UltraModernPortfolio() {
                 >
                   CREATIVE
                 </motion.span>
-                <motion.span 
+                <motion.span
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
@@ -526,7 +533,7 @@ export default function UltraModernPortfolio() {
                   <ArrowRight size={24} />
                 </motion.div>
               </motion.a>
-              
+
               <motion.a
                 href="#contact"
                 whileHover={{ scale: 1.08, rotate: -1 }}
@@ -626,31 +633,31 @@ export default function UltraModernPortfolio() {
               {/* Stats Cards - Floating Style */}
               {(() => {
                 const validStats = [
-                  { 
-                    number: userData.aboutMe.stats.projectsCompleted, 
-                    label: "Projects", 
-                    icon: <Rocket size={40} />, 
+                  {
+                    number: userData.aboutMe.stats.projectsCompleted,
+                    label: "Projects",
+                    icon: <Rocket size={40} />,
                     gradient: "from-emerald-400 to-emerald-600",
                     shadow: "shadow-emerald-400/30"
                   },
-                  { 
-                    number: userData.aboutMe.stats.yearsExperience, 
-                    label: "Years", 
-                    icon: <Zap size={40} />, 
+                  {
+                    number: userData.aboutMe.stats.yearsExperience,
+                    label: "Years",
+                    icon: <Zap size={40} />,
                     gradient: "from-orange-400 to-orange-600",
                     shadow: "shadow-orange-400/30"
                   },
-                  { 
-                    number: userData.aboutMe.stats.happyClients, 
-                    label: "Clients", 
-                    icon: <Code2 size={40} />, 
+                  {
+                    number: userData.aboutMe.stats.happyClients,
+                    label: "Clients",
+                    icon: <Code2 size={40} />,
                     gradient: "from-violet-400 to-violet-600",
                     shadow: "shadow-violet-400/30"
                   },
-                  { 
-                    number: userData.aboutMe.stats.techSkills, 
-                    label: "Skills", 
-                    icon: <Cpu size={40} />, 
+                  {
+                    number: userData.aboutMe.stats.techSkills,
+                    label: "Skills",
+                    icon: <Cpu size={40} />,
                     gradient: "from-emerald-400 to-violet-600",
                     shadow: "shadow-emerald-400/30"
                   },
@@ -664,7 +671,7 @@ export default function UltraModernPortfolio() {
                     className={`p-8 bg-gradient-to-br from-slate-900/80 to-slate-950/80 border-2 border-emerald-400/20 rounded-3xl backdrop-blur-xl relative overflow-hidden group ${stat.shadow} shadow-2xl`}
                   >
                     <motion.div
-                      animate={{ 
+                      animate={{
                         scale: [1, 1.2, 1],
                         opacity: [0.3, 0.6, 0.3]
                       }}
@@ -672,14 +679,14 @@ export default function UltraModernPortfolio() {
                       className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-10`}
                     />
                     <div className="relative z-10 text-center">
-                      <motion.div 
+                      <motion.div
                         className={`text-transparent bg-gradient-to-r ${stat.gradient} bg-clip-text mb-4 flex justify-center`}
                         whileHover={{ scale: 1.2, rotate: 360 }}
                         transition={{ duration: 0.6 }}
                       >
                         {stat.icon}
                       </motion.div>
-                      <motion.div 
+                      <motion.div
                         className={`text-6xl font-black bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent mb-2`}
                         initial={{ opacity: 0, scale: 0.5 }}
                         whileInView={{ opacity: 1, scale: 1 }}
@@ -730,9 +737,9 @@ export default function UltraModernPortfolio() {
                     <motion.div
                       className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-emerald-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     />
-                    
+
                     <div className="flex items-center gap-6 mb-8 relative z-10">
-                      <motion.div 
+                      <motion.div
                         whileHover={{ rotate: 360, scale: 1.2 }}
                         transition={{ duration: 0.6 }}
                         className="w-20 h-20 bg-gradient-to-br from-emerald-500 via-orange-500 to-violet-500 rounded-2xl flex items-center justify-center text-4xl shadow-2xl shadow-emerald-500/30"
@@ -743,7 +750,7 @@ export default function UltraModernPortfolio() {
                         <h3 className="text-4xl font-black text-slate-100 uppercase tracking-wide">
                           {category.category}
                         </h3>
-                        <motion.div 
+                        <motion.div
                           initial={{ scaleX: 0 }}
                           whileInView={{ scaleX: 1 }}
                           viewport={{ once: true }}
@@ -761,8 +768,8 @@ export default function UltraModernPortfolio() {
                           whileInView={{ opacity: 1, scale: 1 }}
                           viewport={{ once: true }}
                           transition={{ delay: idx * 0.05 }}
-                          whileHover={{ 
-                            y: -5, 
+                          whileHover={{
+                            y: -5,
                             scale: 1.1,
                             boxShadow: "0 10px 40px rgba(16, 185, 129, 0.4)"
                           }}
@@ -809,7 +816,7 @@ export default function UltraModernPortfolio() {
                     <div className="flex gap-8">
                       {/* Timeline Dot */}
                       <div className="relative flex-shrink-0">
-                        <motion.div 
+                        <motion.div
                           className="sticky top-32 w-6 h-6 bg-gradient-to-r from-emerald-400 to-violet-400 rounded-full"
                           whileHover={{ scale: 1.5 }}
                         >
@@ -859,6 +866,458 @@ export default function UltraModernPortfolio() {
         </section>
       )}
 
+      {/* Certifications Section - Ultra Modern Design */}
+      {userData.certifications && userData.certifications.length > 0 && (
+        <section id="certifications" className="relative py-32 px-6">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={staggerContainer}
+            >
+              {/* Section Header */}
+              <motion.div variants={fadeInUp} className="text-center mb-20">
+                <div className="flex items-center justify-center gap-4 mb-8">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                    className="w-3 h-3 bg-emerald-400 rounded-full"
+                  />
+                  <span className="text-emerald-400 font-black text-sm uppercase tracking-[0.3em]">
+                    ACHIEVEMENTS
+                  </span>
+                  <motion.div
+                    animate={{ rotate: -360 }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                    className="w-3 h-3 bg-violet-400 rounded-full"
+                  />
+                </div>
+                <h2 className="text-5xl md:text-7xl font-black mb-6 text-slate-100">
+                  CERTIFIED <span className="bg-gradient-to-r from-emerald-400 via-orange-400 to-violet-400 bg-clip-text text-transparent">EXCELLENCE</span>
+                </h2>
+                <p className="text-slate-400 text-xl max-w-3xl mx-auto">
+                  Professional credentials and verified expertise
+                </p>
+              </motion.div>
+
+              {/* Certifications Grid */}
+              <motion.div
+                variants={staggerContainer}
+                className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+              >
+                {userData.certifications.slice(0, 6).map((cert, index) => (
+                  <motion.div
+                    key={index}
+                    variants={scaleIn}
+                    whileHover={{ y: -15, rotate: index % 2 === 0 ? 2 : -2, scale: 1.03 }}
+                    className="group relative"
+                  >
+                    <div className="relative h-full overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/60 to-violet-950/40 border-2 border-emerald-400/20 hover:border-emerald-400/60 backdrop-blur-xl transition-all p-8">
+
+                      {/* Animated Background Gradient */}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        whileHover={{ opacity: 1 }}
+                        className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-orange-500/10 to-violet-500/10"
+                      />
+
+                      {/* Floating Geometric Badge */}
+                      <motion.div
+                        initial={{ scale: 0, rotate: -180 }}
+                        whileInView={{ scale: 1, rotate: 0 }}
+                        viewport={{ once: true }}
+                        transition={{
+                          delay: index * 0.1 + 0.2,
+                          type: "spring",
+                          stiffness: 200
+                        }}
+                        animate={{
+                          y: [0, -10, 0],
+                        }}
+                        transition={{
+                          y: {
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }
+                        }}
+                        className="absolute top-6 right-6 w-20 h-20"
+                      >
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                          className="absolute inset-0 bg-gradient-to-br from-emerald-500 via-orange-500 to-violet-500 rounded-2xl shadow-2xl shadow-emerald-500/30"
+                        />
+                        <div className="absolute inset-2 bg-slate-950 rounded-xl flex items-center justify-center">
+                          <span className="text-3xl">🏆</span>
+                        </div>
+                      </motion.div>
+
+                      <div className="relative z-10 flex flex-col h-full">
+                        {/* Certificate Icon with Geometric Border */}
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          whileInView={{ scale: 1 }}
+                          viewport={{ once: true }}
+                          transition={{
+                            delay: index * 0.1 + 0.3,
+                            type: "spring",
+                            stiffness: 150
+                          }}
+                          className="mb-6"
+                        >
+                          <div className="relative w-28 h-28">
+                            {/* Rotating Outer Border */}
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                              className="absolute inset-0 border-4 border-transparent border-t-emerald-400 border-r-orange-400 rounded-3xl"
+                            />
+                            <motion.div
+                              animate={{ rotate: -360 }}
+                              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                              className="absolute inset-1 border-4 border-transparent border-b-violet-400 border-l-orange-400 rounded-3xl"
+                            />
+
+                            {/* Inner Icon Container */}
+                            <div className="absolute inset-4 bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <span className="text-5xl">🎓</span>
+                            </div>
+                          </div>
+                        </motion.div>
+
+                        {/* Title with Animated Underline */}
+                        <motion.h3
+                          whileHover={{ scale: 1.02 }}
+                          className="text-2xl font-black text-slate-100 mb-4 leading-tight group-hover:text-emerald-400 transition-colors relative"
+                        >
+                          {cert.title}
+                          <motion.div
+                            initial={{ scaleX: 0 }}
+                            whileHover={{ scaleX: 1 }}
+                            className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 via-orange-400 to-violet-400 origin-left"
+                          />
+                        </motion.h3>
+
+                        {/* Issue Date Badge */}
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: index * 0.1 + 0.4 }}
+                          className="mb-5"
+                        >
+                          <motion.span
+                            whileHover={{ scale: 1.05, rotate: 2 }}
+                            className="inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-emerald-500/20 via-orange-500/20 to-violet-500/20 border-2 border-emerald-400/30 rounded-xl text-emerald-400 text-sm font-black uppercase tracking-wider"
+                          >
+                            <motion.div
+                              animate={{ scale: [1, 1.3, 1] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            >
+                              <Sparkles size={16} />
+                            </motion.div>
+                            {cert.issueDate}
+                          </motion.span>
+                        </motion.div>
+
+                        {/* Description */}
+                        <p className="text-slate-400 leading-relaxed flex-grow text-sm mb-6 border-l-4 border-orange-400 pl-4">
+                          {cert.description}
+                        </p>
+
+                        {/* Bottom Multi-Color Bar */}
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: "100%" }}
+                          viewport={{ once: true }}
+                          transition={{
+                            delay: index * 0.1 + 0.5,
+                            duration: 0.8
+                          }}
+                          className="relative h-2 rounded-full overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 via-orange-400 to-violet-400 shadow-lg shadow-emerald-400/30" />
+                          {/* Animated Shimmer */}
+                          <motion.div
+                            animate={{ x: ["-100%", "200%"] }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "linear",
+                              repeatDelay: 1
+                            }}
+                            className="absolute inset-0 w-1/3 bg-white/60 blur-sm"
+                          />
+                        </motion.div>
+                      </div>
+
+                      {/* Decorative Corner Shapes */}
+                      <div className="absolute top-3 left-3 w-8 h-8 border-t-4 border-l-4 border-emerald-400/30 rounded-tl-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute bottom-3 right-3 w-8 h-8 border-b-4 border-r-4 border-violet-400/30 rounded-br-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                      {/* Floating Geometric Shape */}
+                      <motion.div
+                        animate={{
+                          rotate: [0, 360],
+                          scale: [1, 1.1, 1]
+                        }}
+                        transition={{
+                          duration: 20,
+                          repeat: Infinity,
+                          ease: "linear"
+                        }}
+                        className="absolute -bottom-10 -right-10 w-32 h-32 border-4 border-orange-400/10 rounded-3xl"
+                      />
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              {/* View More Button */}
+              {userData.certifications.length > 6 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="text-center mt-16"
+                >
+                  <motion.button
+                    whileHover={{
+                      scale: 1.05,
+                      rotate: 1,
+                      boxShadow: "0 20px 60px rgba(16, 185, 129, 0.4)"
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowAllCertificates(true)}
+                    className="relative px-14 py-6 bg-gradient-to-r from-emerald-500 via-orange-500 to-violet-500 text-white font-black rounded-2xl text-lg uppercase tracking-wider overflow-hidden group shadow-2xl shadow-emerald-500/30"
+                  >
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-violet-500 via-orange-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    />
+                    <span className="relative z-10 flex items-center gap-4">
+                      <Rocket size={26} />
+                      VIEW ALL {userData.certifications.length} CERTIFICATIONS
+                    </span>
+                  </motion.button>
+                </motion.div>
+              )}
+
+              {/* Total Count Display - Geometric Design */}
+              {userData.certifications.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.5 }}
+                  className="mt-20 flex justify-center"
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.05, rotate: 2 }}
+                    className="relative inline-flex items-center gap-10 px-16 py-10 bg-gradient-to-br from-slate-900/80 to-violet-950/60 border-2 border-emerald-400/30 rounded-3xl hover:border-emerald-400 backdrop-blur-xl transition-all overflow-hidden"
+                  >
+                    {/* Animated Geometric Background */}
+                    <motion.div
+                      animate={{
+                        backgroundPosition: ['0% 0%', '100% 100%'],
+                      }}
+                      transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
+                      className="absolute inset-0 opacity-20"
+                      style={{
+                        backgroundImage: `
+                    linear-gradient(30deg, rgba(16, 185, 129, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(16, 185, 129, 0.1) 87.5%, rgba(16, 185, 129, 0.1)),
+                    linear-gradient(150deg, rgba(16, 185, 129, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(16, 185, 129, 0.1) 87.5%, rgba(16, 185, 129, 0.1))
+                  `,
+                        backgroundSize: '80px 140px',
+                      }}
+                    />
+
+                    {/* Rotating Icon */}
+                    <motion.div
+                      animate={{
+                        rotate: [0, 360],
+                      }}
+                      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                      className="relative z-10"
+                    >
+                      <div className="w-24 h-24 bg-gradient-to-br from-emerald-500 via-orange-500 to-violet-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-500/30">
+                        <Cpu className="text-slate-950" size={48} />
+                      </div>
+                    </motion.div>
+
+                    <div className="relative z-10">
+                      <motion.p
+                        initial={{ scale: 0.5 }}
+                        whileInView={{ scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ type: "spring", stiffness: 200 }}
+                        className="text-7xl font-black bg-gradient-to-r from-emerald-400 via-orange-400 to-violet-400 bg-clip-text text-transparent"
+                      >
+                        {userData.certifications.length}
+                      </motion.p>
+                      <p className="text-slate-400 text-sm font-black mt-2 uppercase tracking-widest flex items-center gap-2">
+                        <motion.div
+                          animate={{ scale: [1, 1.5, 1] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                          className="w-2 h-2 bg-emerald-400 rounded-full"
+                        />
+                        CERTIFICATIONS EARNED
+                      </p>
+                    </div>
+
+                    {/* Decorative Floating Shapes */}
+                    <motion.div
+                      animate={{
+                        y: [0, -20, 0],
+                        rotate: [0, 180, 0]
+                      }}
+                      transition={{ duration: 6, repeat: Infinity }}
+                      className="absolute top-4 left-4 w-12 h-12 border-4 border-emerald-400/20 rounded-xl"
+                    />
+                    <motion.div
+                      animate={{
+                        y: [0, 20, 0],
+                        rotate: [0, -180, 0]
+                      }}
+                      transition={{ duration: 7, repeat: Infinity }}
+                      className="absolute bottom-4 right-4 w-16 h-16 border-4 border-violet-400/20"
+                      style={{ clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }}
+                    />
+                  </motion.div>
+                </motion.div>
+              )}
+            </motion.div>
+          </div>
+
+          {/* Modal for All Certifications */}
+          <AnimatePresence>
+            {showAllCertificates && (
+              <>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowAllCertificates(false)}
+                  className="fixed inset-0 bg-slate-950/90 backdrop-blur-2xl z-50 flex items-center justify-center p-4"
+                >
+                  {/* Modal Content */}
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0, y: 50 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.9, opacity: 0, y: 50 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 250 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="bg-gradient-to-br from-slate-900 to-violet-950 border-2 border-emerald-400/30 rounded-3xl max-w-7xl w-full max-h-[90vh] overflow-hidden shadow-2xl shadow-emerald-500/20 relative"
+                  >
+                    {/* Geometric Background Pattern */}
+                    <div className="absolute inset-0 opacity-10 pointer-events-none">
+                      <div className="absolute inset-0" style={{
+                        backgroundImage: `
+                    linear-gradient(30deg, rgba(16, 185, 129, 0.2) 12%, transparent 12.5%, transparent 87%, rgba(16, 185, 129, 0.2) 87.5%, rgba(16, 185, 129, 0.2)),
+                    linear-gradient(150deg, rgba(16, 185, 129, 0.2) 12%, transparent 12.5%, transparent 87%, rgba(16, 185, 129, 0.2) 87.5%, rgba(16, 185, 129, 0.2))
+                  `,
+                        backgroundSize: '80px 140px',
+                      }} />
+                    </div>
+
+                    {/* Modal Header */}
+                    <div className="sticky top-0 z-10 bg-slate-950/95 backdrop-blur-2xl border-b-2 border-emerald-400/30 p-10 flex justify-between items-center relative">
+                      <div>
+                        <h3 className="text-5xl font-black text-slate-100 mb-3 flex items-center gap-4 uppercase tracking-wider">
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                            className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-violet-500 rounded-xl flex items-center justify-center"
+                          >
+                            <Code2 size={24} className="text-slate-950" />
+                          </motion.div>
+                          ALL <span className="bg-gradient-to-r from-emerald-400 via-orange-400 to-violet-400 bg-clip-text text-transparent">CERTIFICATIONS</span>
+                        </h3>
+                        <p className="text-slate-400 flex items-center gap-3 text-lg font-bold uppercase tracking-wide">
+                          <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse" />
+                          {userData.certifications.length} VERIFIED CREDENTIALS
+                        </p>
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.1, rotate: 90 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setShowAllCertificates(false)}
+                        className="w-16 h-16 rounded-xl bg-slate-900/50 backdrop-blur-sm border-2 border-emerald-400/30 hover:bg-slate-800/50 hover:border-emerald-400 flex items-center justify-center text-emerald-400 transition-all"
+                      >
+                        <X size={32} />
+                      </motion.button>
+                    </div>
+
+                    {/* Modal Body - Scrollable */}
+                    <div className="p-10 overflow-y-auto max-h-[calc(90vh-200px)] relative">
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {userData.certifications.map((cert, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            whileHover={{
+                              y: -8,
+                              scale: 1.02
+                            }}
+                            className="group relative"
+                          >
+                            <div className="relative h-full bg-gradient-to-br from-slate-900/70 to-violet-950/50 border-2 border-emerald-400/20 rounded-2xl p-6 hover:border-emerald-400/50 backdrop-blur-sm transition-all overflow-hidden">
+
+                              {/* Hover gradient */}
+                              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-violet-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                              {/* Badge */}
+                              <div className="absolute top-4 right-4 w-14 h-14 bg-gradient-to-br from-emerald-500 to-violet-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                                <span className="text-2xl">🏆</span>
+                              </div>
+
+                              <div className="relative z-10">
+                                {/* Icon */}
+                                <div className="mb-4">
+                                  <div className="w-20 h-20 bg-slate-800/50 border-2 border-emerald-400/30 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:border-emerald-400 transition-all">
+                                    <span className="text-4xl">🎓</span>
+                                  </div>
+                                </div>
+
+                                {/* Title */}
+                                <h4 className="text-xl font-black text-slate-100 mb-3 leading-tight group-hover:text-emerald-400 transition-colors">
+                                  {cert.title}
+                                </h4>
+
+                                {/* Date */}
+                                <div className="mb-3">
+                                  <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 border border-emerald-400/30 rounded-lg text-emerald-400 text-xs font-black uppercase tracking-wider">
+                                    <Sparkles size={12} />
+                                    {cert.issueDate}
+                                  </span>
+                                </div>
+
+                                {/* Description */}
+                                <p className="text-slate-400 text-sm leading-relaxed mb-4 border-l-2 border-orange-400/50 pl-3">
+                                  {cert.description}
+                                </p>
+
+                                {/* Bottom bar */}
+                                <div className="h-1.5 rounded-full bg-gradient-to-r from-emerald-400 via-orange-400 to-violet-400 shadow-sm" />
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </section>
+      )}
+
+
       {/* Projects Section - Masonry Grid */}
       <section id="projects" className="relative py-32 px-6 bg-slate-950/30">
         <div className="max-w-7xl mx-auto">
@@ -903,7 +1362,7 @@ export default function UltraModernPortfolio() {
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent" />
-                        
+
                         {/* Hover Action Buttons */}
                         <motion.div
                           initial={{ opacity: 0, y: 20 }}
@@ -998,7 +1457,7 @@ export default function UltraModernPortfolio() {
                   <p className="text-slate-400 leading-relaxed mb-8">
                     I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
                   </p>
-                  
+
                   {/* Social Links */}
                   <div className="space-y-4">
                     {userData.socialLinks.map((social, index) => (

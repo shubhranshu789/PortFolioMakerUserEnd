@@ -59,6 +59,12 @@ interface UserData {
     href: string
     color: string
   }>
+
+  certifications: Array<{
+    title: string
+    description: string
+    issueDate: string
+  }>
 }
 
 export default function UI3() {
@@ -70,7 +76,7 @@ export default function UI3() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   const router = useRouter()
-    const params = useParams()
+  const params = useParams()
   const { scrollYProgress } = useScroll()
   const scaleProgress = useTransform(scrollYProgress, [0, 1], [0, 1])
 
@@ -79,7 +85,8 @@ export default function UI3() {
   const [userEmail, setuserEmail] = useState('')
   const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}`;
 
-  const [submitted, setSubmitted] = useState(false)
+  const [submitted, setSubmitted] = useState(false);
+  const [showAllCertificates, setShowAllCertificates] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -100,43 +107,44 @@ export default function UI3() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     try {
-      // Use the email from state (already fetched from API)
-      if (!userEmail) {
-        alert('Portfolio owner information not found');
-        return;
+      const storedUser = localStorage.getItem('user')
+
+      if (!storedUser) {
+        alert('Portfolio owner information not found')
+        return
       }
 
+      const userData = JSON.parse(storedUser)
+      const portfolioOwnerEmail = userData.email
+
       const templateParams = {
-        to_email: userEmail, // Email fetched from API
+        to_email: portfolioOwnerEmail,
         from_name: formData.name,
         from_email: formData.email,
         message: formData.message,
-      };
+      }
 
       await emailjs.send(
         'service_girqhvt',
         'template_u847pee',
         templateParams,
         'O8RoSh1QrCmKJeJn7'
-      );
+      )
 
-      setSubmitted(true);
+      setSubmitted(true)
       setTimeout(() => {
-        setSubmitted(false);
-        setFormData({ name: '', email: '', message: '' });
-      }, 3000);
+        setSubmitted(false)
+        setFormData({ name: '', email: '', message: '' })
+      }, 3000)
 
     } catch (error) {
-      console.error('Error sending email:', error);
-      alert('Failed to send message. Please try again.');
+      console.error('Error sending email:', error)
+      alert('Failed to send message. Please try again.')
     }
-  };
-
-
-
+  }
 
   useEffect(() => {
     const usernameFromUrl = params.username as string
@@ -148,7 +156,6 @@ export default function UI3() {
       router.push('/Components/Auth/SignIn')
     }
   }, [params.username])
-
 
   const fetchUserData = async (username: string) => {
     try {
@@ -175,13 +182,12 @@ export default function UI3() {
     }
   }
 
-
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
 
       // Active section detection
-      const sections = ['home', 'about', 'skills', 'experience', 'projects', 'contact']
+      const sections = ['home', 'about', 'skills', 'experience', 'projects', 'contact','certifications']
       const current = sections.find(section => {
         const element = document.getElementById(section)
         if (element) {
@@ -201,8 +207,9 @@ export default function UI3() {
     { label: "About", href: "#about" },
     { label: "Skills", href: "#skills" },
     { label: "Work", href: "#projects" },
+    { label: "Certifications", href: "#certifications" },
     { label: "Contact", href: "#contact" },
-    // { label: "Dashboard", href: "/Components/DashBoard" },
+    { label: "Dashboard", href: "/Components/DashBoard" },
   ]
 
   const currentYear = new Date().getFullYear()
@@ -284,7 +291,7 @@ export default function UI3() {
             transition={{ duration: 3, repeat: Infinity }}
             className="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500/30 rounded-full blur-3xl"
           />
-          
+
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -340,11 +347,10 @@ export default function UI3() {
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`fixed top-0 w-full z-40 transition-all duration-500 ${
-          scrolled
-            ? "bg-slate-900/80 backdrop-blur-2xl border-b border-white/10 shadow-lg shadow-purple-500/10"
-            : "bg-transparent"
-        }`}
+        className={`fixed top-0 w-full z-40 transition-all duration-500 ${scrolled
+          ? "bg-slate-900/80 backdrop-blur-2xl border-b border-white/10 shadow-lg shadow-purple-500/10"
+          : "bg-transparent"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
           <motion.div
@@ -372,18 +378,17 @@ export default function UI3() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className={`px-5 py-2 rounded-full transition-all font-medium relative ${
-                  activeSection === link.href.slice(1)
-                    ? "text-white bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg shadow-purple-500/50"
-                    : "text-gray-400 hover:text-white"
-                }`}
+                className={`px-5 py-2 rounded-full transition-all font-medium relative ${activeSection === link.href.slice(1)
+                  ? "text-white bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg shadow-purple-500/50"
+                  : "text-gray-400 hover:text-white"
+                  }`}
               >
                 {link.label}
               </motion.a>
             ))}
           </div>
 
-        
+
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -553,7 +558,7 @@ export default function UI3() {
               ))} */}
             </motion.div>
 
-           
+
 
 
 
@@ -662,7 +667,7 @@ export default function UI3() {
                         <motion.div
                           className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-10 transition-opacity`}
                         />
-                        
+
                         <div className="relative z-10">
                           <motion.div
                             animate={{ rotate: [0, 5, -5, 0] }}
@@ -785,106 +790,485 @@ export default function UI3() {
         </div>
       </section>
 
+
       {/* Experience Section - Timeline */}
-      <section id="experience" className="relative py-32 px-6">
-        <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            className="text-center mb-20"
-          >
-            <h2 className="text-5xl md:text-7xl font-black mb-6">
-              Work <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">Experience</span>
-            </h2>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="relative"
-          >
-            {/* Animated Timeline Line */}
+      {userData.experiences && userData.experiences.length > 0 && (
+        <section id="experience" className="relative py-32 px-6">
+          <div className="max-w-5xl mx-auto">
             <motion.div
-              initial={{ height: 0 }}
-              whileInView={{ height: "100%" }}
+              initial="hidden"
+              whileInView="visible"
               viewport={{ once: true }}
-              transition={{ duration: 1.5 }}
-              className="absolute left-0 md:left-1/2 top-0 w-1 bg-gradient-to-b from-purple-500 via-pink-500 to-transparent"
-            />
+              variants={fadeInUp}
+              className="text-center mb-20"
+            >
+              <h2 className="text-5xl md:text-7xl font-black mb-6">
+                Work <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">Experience</span>
+              </h2>
+            </motion.div>
 
-            {userData.experiences.length > 0 ? (
-              userData.experiences.map((exp, index) => (
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+              className="relative"
+            >
+              {/* Animated Timeline Line */}
+              <motion.div
+                initial={{ height: 0 }}
+                whileInView={{ height: "100%" }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.5 }}
+                className="absolute left-0 md:left-1/2 top-0 w-1 bg-gradient-to-b from-purple-500 via-pink-500 to-transparent"
+              />
+
+              {userData.experiences.length > 0 ? (
+                userData.experiences.map((exp, index) => (
+                  <motion.div
+                    key={index}
+                    variants={fadeInUp}
+                    className={`relative mb-16 ${index % 2 === 0 ? "md:pr-1/2 md:text-right" : "md:pl-1/2 md:ml-auto"
+                      }`}
+                  >
+                    {/* Timeline Dot */}
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true }}
+                      whileHover={{ scale: 1.5 }}
+                      className="absolute left-0 md:left-1/2 top-6 w-5 h-5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full border-4 border-slate-950 transform -translate-x-1/2 md:translate-x-0 z-10 shadow-lg shadow-purple-500/50"
+                    />
+
+                    <motion.div
+                      whileHover={{
+                        scale: 1.02,
+                        boxShadow: "0 20px 60px rgba(168, 85, 247, 0.3)"
+                      }}
+                      className="ml-8 md:ml-0 p-8 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 hover:border-purple-500/30 transition-all"
+                    >
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        className="mb-4"
+                      >
+                        <span className="inline-block px-4 py-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-full text-purple-400 text-sm font-mono">
+                          {exp.period}
+                        </span>
+                      </motion.div>
+
+                      <h3 className="text-2xl font-bold text-white mb-2">
+                        {exp.role}
+                      </h3>
+                      <p className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 font-semibold mb-4">
+                        {exp.company}
+                      </p>
+                      <p className="text-gray-400 leading-relaxed mb-6">
+                        {exp.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-2">
+                        {exp.skills.map((skill, idx) => (
+                          <motion.span
+                            key={idx}
+                            initial={{ opacity: 0, scale: 0 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: idx * 0.05 }}
+                            whileHover={{ scale: 1.1 }}
+                            className="px-3 py-1.5 bg-purple-500/10 text-purple-400 rounded-lg text-sm font-medium border border-purple-500/20"
+                          >
+                            {skill}
+                          </motion.span>
+                        ))}
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                ))
+              ) : (
+                <p className="text-center text-gray-400">No experience added yet</p>
+              )}
+            </motion.div>
+          </div>
+        </section>
+      )}
+
+
+      {/* Certifications Section - Gradient Glassmorphism */}
+      {userData.certifications && userData.certifications.length > 0 && (
+        <section id="certifications" className="relative py-32 px-6">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeInUp}
+              className="text-center mb-20"
+            >
+              <h2 className="text-5xl md:text-7xl font-black mb-6">
+                Certifications & <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">Achievements</span>
+              </h2>
+              <p className="text-gray-400 text-xl max-w-2xl mx-auto">
+                Professional credentials and milestones earned throughout my journey
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {userData.certifications.slice(0, 6).map((cert, index) => (
                 <motion.div
                   key={index}
-                  variants={fadeInUp}
-                  className={`relative mb-16 ${
-                    index % 2 === 0 ? "md:pr-1/2 md:text-right" : "md:pl-1/2 md:ml-auto"
-                  }`}
+                  variants={scaleIn}
+                  whileHover={{
+                    y: -10,
+                    scale: 1.02,
+                    transition: { duration: 0.3 }
+                  }}
+                  className="group relative"
                 >
-                  {/* Timeline Dot */}
+                  <div className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 hover:border-purple-500/30 transition-all p-8">
+
+                    {/* Animated gradient background */}
+                    <motion.div
+                      animate={{
+                        background: [
+                          'radial-gradient(circle at 20% 20%, rgba(168, 85, 247, 0.15) 0%, transparent 50%)',
+                          'radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)',
+                          'radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)',
+                          'radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.15) 0%, transparent 50%)',
+                        ],
+                      }}
+                      transition={{ duration: 8, repeat: Infinity }}
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    />
+
+                    {/* Trophy Badge with pulse */}
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      whileInView={{ scale: 1, rotate: 0 }}
+                      viewport={{ once: true }}
+                      transition={{
+                        delay: index * 0.1 + 0.2,
+                        type: "spring",
+                        stiffness: 200
+                      }}
+                      className="absolute top-6 right-6 w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/50"
+                    >
+                      <motion.span
+                        animate={{
+                          scale: [1, 1.1, 1],
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="text-2xl"
+                      >
+                        🏆
+                      </motion.span>
+                    </motion.div>
+
+                    <div className="relative z-10 flex flex-col h-full">
+                      {/* Certificate Icon */}
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        whileInView={{ scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{
+                          delay: index * 0.1 + 0.3,
+                          type: "spring",
+                          stiffness: 150
+                        }}
+                        className="mb-6"
+                      >
+                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-sm border border-white/20 flex items-center justify-center relative overflow-hidden group">
+                          <motion.div
+                            animate={{ rotate: [0, 360] }}
+                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                            className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10"
+                          />
+                          <span className="text-4xl relative z-10">🎓</span>
+                        </div>
+                      </motion.div>
+
+                      {/* Title with gradient hover */}
+                      <motion.h3
+                        whileHover={{ scale: 1.02 }}
+                        className="text-2xl font-bold text-white mb-4 leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-pink-400 transition-all"
+                      >
+                        {cert.title}
+                      </motion.h3>
+
+                      {/* Issue Date Badge */}
+                      <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 + 0.4 }}
+                        className="mb-4"
+                      >
+                        <motion.span
+                          whileHover={{ scale: 1.05 }}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 backdrop-blur-sm border border-purple-500/20 rounded-full text-purple-400 text-sm font-mono"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          {cert.issueDate}
+                        </motion.span>
+                      </motion.div>
+
+                      {/* Description */}
+                      <p className="text-gray-400 leading-relaxed flex-grow text-sm mb-6">
+                        {cert.description}
+                      </p>
+
+                      {/* Bottom gradient line with animation */}
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: "100%" }}
+                        viewport={{ once: true }}
+                        transition={{
+                          delay: index * 0.1 + 0.5,
+                          duration: 0.8
+                        }}
+                        className="h-1 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 relative overflow-hidden"
+                      >
+                        <motion.div
+                          animate={{ x: ["-100%", "200%"] }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "linear"
+                          }}
+                          className="absolute inset-0 w-1/3 bg-white/50 blur-sm"
+                        />
+                      </motion.div>
+                    </div>
+
+                    {/* Corner decorations */}
+                    <div className="absolute top-2 left-2 w-8 h-8 border-t-2 border-l-2 border-purple-500/20 rounded-tl-xl" />
+                    <div className="absolute bottom-2 right-2 w-8 h-8 border-b-2 border-r-2 border-pink-500/20 rounded-br-xl" />
+
+                    {/* Hover glow effect */}
+                    <motion.div
+                      className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                      style={{
+                        background: "radial-gradient(600px at var(--mouse-x) var(--mouse-y), rgba(168, 85, 247, 0.15), transparent 40%)"
+                      }}
+                    />
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* View More Button */}
+            {userData.certifications.length > 6 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center mt-16"
+              >
+                <motion.button
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 20px 60px rgba(168, 85, 247, 0.4)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowAllCertificates(true)}
+                  className="px-10 py-5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-2xl shadow-xl shadow-purple-500/30 flex items-center gap-3 mx-auto text-lg"
+                >
+                  <Palette size={24} />
+                  View All {userData.certifications.length} Certifications
+                </motion.button>
+              </motion.div>
+            )}
+
+            {/* Total Count Display */}
+            {userData.certifications.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 }}
+                className="mt-16 flex justify-center"
+              >
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  className="inline-flex items-center gap-8 px-12 py-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl hover:border-purple-500/30 transition-all relative overflow-hidden"
+                >
+                  {/* Animated background */}
                   <motion.div
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    whileHover={{ scale: 1.5 }}
-                    className="absolute left-0 md:left-1/2 top-6 w-5 h-5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full border-4 border-slate-950 transform -translate-x-1/2 md:translate-x-0 z-10 shadow-lg shadow-purple-500/50"
+                    animate={{
+                      background: [
+                        'linear-gradient(45deg, rgba(168, 85, 247, 0.1) 0%, transparent 100%)',
+                        'linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, transparent 100%)',
+                        'linear-gradient(225deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%)',
+                        'linear-gradient(315deg, rgba(168, 85, 247, 0.1) 0%, transparent 100%)',
+                      ],
+                    }}
+                    transition={{ duration: 8, repeat: Infinity }}
+                    className="absolute inset-0"
                   />
 
                   <motion.div
-                    whileHover={{
-                      scale: 1.02,
-                      boxShadow: "0 20px 60px rgba(168, 85, 247, 0.3)"
+                    animate={{
+                      rotate: [0, 360],
+                      scale: [1, 1.2, 1]
                     }}
-                    className="ml-8 md:ml-0 p-8 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 hover:border-purple-500/30 transition-all"
+                    transition={{ duration: 4, repeat: Infinity }}
+                    className="text-5xl relative z-10"
                   >
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      className="mb-4"
+                    ✨
+                  </motion.div>
+
+                  <div className="relative z-10">
+                    <motion.p
+                      animate={{
+                        backgroundPosition: ["0%", "100%", "0%"]
+                      }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                      className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-[length:200%_auto]"
                     >
-                      <span className="inline-block px-4 py-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-full text-purple-400 text-sm font-mono">
-                        {exp.period}
-                      </span>
-                    </motion.div>
-                    
-                    <h3 className="text-2xl font-bold text-white mb-2">
-                      {exp.role}
-                    </h3>
-                    <p className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 font-semibold mb-4">
-                      {exp.company}
+                      {userData.certifications.length}
+                    </motion.p>
+                    <p className="text-gray-400 text-sm font-medium mt-1">
+                      Certifications Earned
                     </p>
-                    <p className="text-gray-400 leading-relaxed mb-6">
-                      {exp.description}
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-2">
-                      {exp.skills.map((skill, idx) => (
-                        <motion.span
-                          key={idx}
-                          initial={{ opacity: 0, scale: 0 }}
-                          whileInView={{ opacity: 1, scale: 1 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: idx * 0.05 }}
-                          whileHover={{ scale: 1.1 }}
-                          className="px-3 py-1.5 bg-purple-500/10 text-purple-400 rounded-lg text-sm font-medium border border-purple-500/20"
-                        >
-                          {skill}
-                        </motion.span>
-                      ))}
+                  </div>
+
+                  {/* Corner decorations */}
+                  <div className="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2 border-purple-500/30 rounded-tl-lg" />
+                  <div className="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2 border-pink-500/30 rounded-br-lg" />
+                </motion.div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Modal for All Certifications */}
+          <AnimatePresence>
+            {showAllCertificates && (
+              <>
+                {/* Backdrop with blur */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowAllCertificates(false)}
+                  className="fixed inset-0 bg-black/80 backdrop-blur-xl z-50 flex items-center justify-center p-4"
+                >
+                  {/* Modal Content */}
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0, y: 100 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.8, opacity: 0, y: 100 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 250 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="bg-slate-900/95 backdrop-blur-2xl border border-purple-500/30 rounded-3xl max-w-7xl w-full max-h-[90vh] overflow-hidden shadow-2xl shadow-purple-500/20 relative"
+                  >
+                    {/* Animated gradient overlay */}
+                    <motion.div
+                      animate={{
+                        background: [
+                          'radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)',
+                          'radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.1) 0%, transparent 50%)',
+                          'radial-gradient(circle at 0% 100%, rgba(59, 130, 246, 0.1) 0%, transparent 50%)',
+                          'radial-gradient(circle at 100% 0%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)',
+                        ],
+                      }}
+                      transition={{ duration: 10, repeat: Infinity }}
+                      className="absolute inset-0 pointer-events-none"
+                    />
+
+                    {/* Modal Header */}
+                    <div className="sticky top-0 z-10 bg-slate-900/95 backdrop-blur-xl border-b border-white/10 p-8 flex justify-between items-center relative">
+                      <div>
+                        <h3 className="text-4xl font-black text-white mb-2">
+                          All <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">Certifications</span>
+                        </h3>
+                        <p className="text-gray-400 flex items-center gap-2">
+                          <Sparkles className="w-4 h-4" />
+                          {userData.certifications.length} professional achievements
+                        </p>
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.1, rotate: 90 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setShowAllCertificates(false)}
+                        className="w-14 h-14 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-purple-500/50 flex items-center justify-center text-white transition-all"
+                      >
+                        <X size={28} />
+                      </motion.button>
+                    </div>
+
+                    {/* Modal Body - Scrollable */}
+                    <div className="p-8 overflow-y-auto max-h-[calc(90vh-140px)] relative">
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {userData.certifications.map((cert, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            whileHover={{
+                              y: -5,
+                              scale: 1.02
+                            }}
+                            className="group relative"
+                          >
+                            <div className="relative h-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:border-purple-500/30 transition-all overflow-hidden">
+
+                              {/* Hover gradient */}
+                              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-pink-500/0 group-hover:from-purple-500/10 group-hover:to-pink-500/10 transition-all rounded-2xl" />
+
+                              {/* Badge */}
+                              <div className="absolute top-4 right-4 w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/50">
+                                <span className="text-xl">🏆</span>
+                              </div>
+
+                              <div className="relative z-10">
+                                {/* Icon */}
+                                <div className="mb-4">
+                                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-white/20 flex items-center justify-center">
+                                    <span className="text-3xl">🎓</span>
+                                  </div>
+                                </div>
+
+                                {/* Title */}
+                                <h4 className="text-xl font-bold text-white mb-3 leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-pink-400 transition-all">
+                                  {cert.title}
+                                </h4>
+
+                                {/* Date */}
+                                <div className="mb-3">
+                                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-full text-purple-400 text-xs font-mono">
+                                    <Sparkles className="w-3 h-3" />
+                                    {cert.issueDate}
+                                  </span>
+                                </div>
+
+                                {/* Description */}
+                                <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                                  {cert.description}
+                                </p>
+
+                                {/* Bottom line */}
+                                <div className="h-1 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500" />
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
                   </motion.div>
                 </motion.div>
-              ))
-            ) : (
-              <p className="text-center text-gray-400">No experience added yet</p>
+              </>
             )}
-          </motion.div>
-        </div>
-      </section>
+          </AnimatePresence>
+        </section>
+      )}
+
 
       {/* Projects Section - Modern Grid */}
       <section id="projects" className="relative py-32 px-6">
@@ -1135,30 +1519,30 @@ export default function UI3() {
               className="mt-16 pt-16 border-t border-white/10"
             >
               <h3 className="text-2xl font-bold text-center mb-8">Connect with me</h3>
-              <div className="flex justify-center gap-4" style={{alignItems : "center", flexDirection : "column" , display : "flex" , justifyContent : "c"}}>
+              <div className="flex justify-center gap-4" style={{ alignItems: "center", display: "flex", justifyContent: "center " }}>
                 {userData.socialLinks.map((social, index) => (
-                 <div>
-                   <motion.a
-                    key={index}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{
-                      y: -5,
-                      scale: 1.1,
-                      boxShadow: `0 10px 30px ${social.color}40`
-                    }}
-                    whileTap={{ scale: 0.9 }}
-                    className="w-14 h-14 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center text-2xl hover:border-purple-500/50 transition-all"
-                    style={{ color: social.color }}
-                  >
-                    {social.icon}
-                  </motion.a>
+                  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
+                    <motion.a
+                      key={index}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{
+                        y: -5,
+                        scale: 1.1,
+                        boxShadow: `0 10px 30px ${social.color}40`
+                      }}
+                      whileTap={{ scale: 0.9 }}
+                      className="w-14 h-14 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center text-2xl hover:border-purple-500/50 transition-all"
+                      style={{ color: social.color }}
+                    >
+                      {social.icon}
+                    </motion.a>
 
-                  <p>{social.label}</p>
-                 </div>
+                    <p>{social.label}</p>
+                  </div>
 
-                  
+
                 ))}
               </div>
             </motion.div>

@@ -59,6 +59,11 @@ interface UserData {
     href: string
     color: string
   }>
+  certifications: Array<{
+    title: string
+    description: string
+    issueDate: string
+  }>
 }
 
 export default function Portfolio() {
@@ -81,6 +86,7 @@ export default function Portfolio() {
 
 
   const [submitted, setSubmitted] = useState(false);
+  const [showAllCertificates, setShowAllCertificates] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -180,6 +186,7 @@ export default function Portfolio() {
     { label: "Skills", href: "#skills" },
     { label: "Experience", href: "#experience" },
     { label: "Projects", href: "#projects" },
+    { label: "Certifications", href: "#certifications" },
     { label: "Contact", href: "#contact" },
     // { label: "DashBoard", href: "/Components/DashBoard" },
   ]
@@ -582,9 +589,9 @@ export default function Portfolio() {
                     <motion.div
                       variants={staggerContainer}
                       className={`grid gap-4 sm:gap-6 lg:gap-8 ${validStats.length === 1 ? 'grid-cols-1 max-w-xs' :
-                          validStats.length === 2 ? 'grid-cols-2 max-w-2xl' :
-                            validStats.length === 3 ? 'grid-cols-2 sm:grid-cols-3' :
-                              'grid-cols-2 sm:grid-cols-2 lg:grid-cols-4'
+                        validStats.length === 2 ? 'grid-cols-2 max-w-2xl' :
+                          validStats.length === 3 ? 'grid-cols-2 sm:grid-cols-3' :
+                            'grid-cols-2 sm:grid-cols-2 lg:grid-cols-4'
                         }`}
                     >
                       {validStats.map((stat, index) => (
@@ -699,75 +706,324 @@ export default function Portfolio() {
         </section>
 
         {/* EXPERIENCE SECTION */}
-        <section id="experience" className="relative w-full py-16 sm:py-24 px-4 sm:px-6">
-          <div className="max-w-5xl mx-auto">
-            <motion.h2
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeInUp}
-              className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-12 sm:mb-16 text-center bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
-            >
-              Experience
-            </motion.h2>
+        {userData.experiences && userData.experiences.length > 0 && (
+          <section id="experience" className="relative w-full py-16 sm:py-24 px-4 sm:px-6">
+            <div className="max-w-5xl mx-auto">
+              <motion.h2
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeInUp}
+                className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-12 sm:mb-16 text-center bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
+              >
+                Experience
+              </motion.h2>
 
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="space-y-12 sm:space-y-16"
-            >
-              {userData.experiences.length > 0 ? (
-                userData.experiences.map((exp, index) => (
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={staggerContainer}
+                className="space-y-12 sm:space-y-16"
+              >
+                {userData.experiences.length > 0 ? (
+                  userData.experiences.map((exp, index) => (
+                    <motion.div
+                      key={index}
+                      variants={fadeInUp}
+                      whileHover={{ scale: 1.02 }}
+                      className="group relative"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                      <div className="relative flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 sm:gap-8 p-6 sm:p-8 border-b border-purple-500/20 last:border-b-0">
+                        <div className="flex-1 space-y-4">
+                          <div>
+                            <h3 className="text-xl sm:text-2xl font-bold text-white group-hover:text-purple-400 transition-colors">
+                              {exp.role}
+                            </h3>
+                            <p className="text-purple-400 font-medium mt-2">{exp.company}</p>
+                          </div>
+                          <p className="text-gray-400 leading-relaxed">{exp.description}</p>
+                        </div>
+
+                        <div className="lg:text-right space-y-4">
+                          <p className="text-gray-400 text-sm font-mono whitespace-nowrap bg-purple-500/10 px-4 py-2 rounded-lg inline-block">
+                            {exp.period}
+                          </p>
+                          <div className="flex flex-wrap gap-2 lg:justify-end">
+                            {exp.skills.map((skill, idx) => (
+                              <motion.span
+                                key={idx}
+                                initial={{ opacity: 0, scale: 0 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: idx * 0.05 }}
+                                whileHover={{ scale: 1.1 }}
+                                className="text-xs font-medium text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full cursor-pointer"
+                              >
+                                {skill}
+                              </motion.span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))
+                ) : (
+                  <p className="text-center text-gray-400">No experience added yet</p>
+                )}
+              </motion.div>
+            </div>
+          </section>
+        )}
+
+
+        {/* CERTIFICATIONS SECTION */}
+        {userData.certifications && userData.certifications.length > 0 && (
+          <section id="certifications" className="relative w-full py-16 sm:py-24 px-4 sm:px-6">
+            <div className="max-w-7xl mx-auto">
+              <motion.h2
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeInUp}
+                className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-12 sm:mb-16 text-center bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
+              >
+                Certifications & Achievements
+              </motion.h2>
+
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={staggerContainer}
+                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
+              >
+                {userData.certifications.slice(0, 6).map((cert, index) => (
                   <motion.div
                     key={index}
-                    variants={fadeInUp}
-                    whileHover={{ scale: 1.02 }}
+                    variants={scaleIn}
+                    whileHover={{ y: -10, scale: 1.02 }}
                     className="group relative"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    {/* Certificate Card */}
+                    <div className="relative h-full p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-blue-500/10 border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 backdrop-blur-sm overflow-hidden">
 
-                    <div className="relative flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 sm:gap-8 p-6 sm:p-8 border-b border-purple-500/20 last:border-b-0">
-                      <div className="flex-1 space-y-4">
-                        <div>
-                          <h3 className="text-xl sm:text-2xl font-bold text-white group-hover:text-purple-400 transition-colors">
-                            {exp.role}
-                          </h3>
-                          <p className="text-purple-400 font-medium mt-2">{exp.company}</p>
+                      {/* Glow effect on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-pink-500/0 group-hover:from-purple-500/20 group-hover:to-pink-500/20 transition-all duration-300 rounded-2xl" />
+
+                      {/* Animated corner accent */}
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        whileInView={{ scale: 1, opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 + 0.3 }}
+                        className="absolute top-4 right-4 w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center shadow-lg"
+                      >
+                        <span className="text-2xl">🏆</span>
+                      </motion.div>
+
+                      <div className="relative z-10 flex flex-col h-full">
+                        {/* Certificate Icon */}
+                        <motion.div
+                          initial={{ rotate: -10, scale: 0 }}
+                          whileInView={{ rotate: 0, scale: 1 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: index * 0.1, type: "spring", stiffness: 200 }}
+                          className="mb-4"
+                        >
+                          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 flex items-center justify-center">
+                            <span className="text-3xl">🎓</span>
+                          </div>
+                        </motion.div>
+
+                        {/* Certificate Title */}
+                        <h3 className="text-xl sm:text-2xl font-bold mb-3 text-white group-hover:text-purple-400 transition-colors leading-tight">
+                          {cert.title}
+                        </h3>
+
+                        {/* Issue Date */}
+                        <div className="mb-4">
+                          <span className="inline-block px-3 py-1 text-xs font-mono text-purple-400 bg-purple-500/20 rounded-full border border-purple-500/30">
+                            📅 {cert.issueDate}
+                          </span>
                         </div>
-                        <p className="text-gray-400 leading-relaxed">{exp.description}</p>
+
+                        {/* Certificate Description */}
+                        <p className="text-gray-400 text-sm sm:text-base leading-relaxed flex-grow">
+                          {cert.description}
+                        </p>
+
+                        {/* Bottom accent line */}
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: "100%" }}
+                          viewport={{ once: true }}
+                          transition={{ delay: index * 0.1 + 0.5, duration: 0.5 }}
+                          className="h-1 mt-6 rounded-full bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400"
+                        />
                       </div>
 
-                      <div className="lg:text-right space-y-4">
-                        <p className="text-gray-400 text-sm font-mono whitespace-nowrap bg-purple-500/10 px-4 py-2 rounded-lg inline-block">
-                          {exp.period}
+                      {/* Decorative corner lines */}
+                      <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-purple-500/30 rounded-bl-lg" />
+                      <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-purple-500/30 rounded-tl-lg" />
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              {/* View More Button */}
+              {userData.certifications.length > 6 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="text-center mt-12"
+                >
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowAllCertificates(true)}
+                    className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-xl hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300"
+                  >
+                    View All {userData.certifications.length} Certifications
+                  </motion.button>
+                </motion.div>
+              )}
+
+              {/* Total Count Badge */}
+              {userData.certifications.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.5 }}
+                  className="mt-12 sm:mt-16 text-center"
+                >
+                  <div className="inline-block px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 border border-purple-500/30 backdrop-blur-sm">
+                    <div className="flex items-center gap-4">
+                      <motion.div
+                        animate={{ rotate: [0, 360] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                        className="text-3xl"
+                      >
+                        ✨
+                      </motion.div>
+                      <div>
+                        <p className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                          {userData.certifications.length}
                         </p>
-                        <div className="flex flex-wrap gap-2 lg:justify-end">
-                          {exp.skills.map((skill, idx) => (
-                            <motion.span
-                              key={idx}
-                              initial={{ opacity: 0, scale: 0 }}
-                              whileInView={{ opacity: 1, scale: 1 }}
-                              viewport={{ once: true }}
-                              transition={{ delay: idx * 0.05 }}
-                              whileHover={{ scale: 1.1 }}
-                              className="text-xs font-medium text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full cursor-pointer"
+                        <p className="text-sm text-gray-400 font-medium">
+                          Certifications Earned
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+
+            {/* Modal for All Certifications */}
+            <AnimatePresence>
+              {showAllCertificates && (
+                <>
+                  {/* Backdrop */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setShowAllCertificates(false)}
+                    className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                  >
+                    {/* Modal Content */}
+                    <motion.div
+                      initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                      animate={{ scale: 1, opacity: 1, y: 0 }}
+                      exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                      transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="bg-slate-900 rounded-2xl border border-purple-500/30 max-w-6xl w-full max-h-[85vh] overflow-hidden relative"
+                    >
+                      {/* Modal Header */}
+                      <div className="sticky top-0 z-10 bg-slate-900/95 backdrop-blur-lg border-b border-purple-500/30 p-6 flex justify-between items-center">
+                        <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                          All Certifications ({userData.certifications.length})
+                        </h3>
+                        <motion.button
+                          whileHover={{ scale: 1.1, rotate: 90 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => setShowAllCertificates(false)}
+                          className="w-10 h-10 rounded-full bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 flex items-center justify-center text-white transition-colors"
+                        >
+                          <X size={20} />
+                        </motion.button>
+                      </div>
+
+                      {/* Modal Body - Scrollable */}
+                      <div className="p-6 overflow-y-auto max-h-[calc(85vh-88px)]">
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {userData.certifications.map((cert, index) => (
+                            <motion.div
+                              key={index}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                              whileHover={{ y: -5, scale: 1.02 }}
+                              className="group relative"
                             >
-                              {skill}
-                            </motion.span>
+                              <div className="relative h-full p-6 rounded-xl bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-blue-500/10 border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300">
+
+                                {/* Glow effect */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-pink-500/0 group-hover:from-purple-500/20 group-hover:to-pink-500/20 transition-all duration-300 rounded-xl" />
+
+                                {/* Badge */}
+                                <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
+                                  <span className="text-xl">🏆</span>
+                                </div>
+
+                                <div className="relative z-10">
+                                  {/* Icon */}
+                                  <div className="mb-3">
+                                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 flex items-center justify-center">
+                                      <span className="text-2xl">🎓</span>
+                                    </div>
+                                  </div>
+
+                                  {/* Title */}
+                                  <h4 className="text-lg font-bold mb-2 text-white group-hover:text-purple-400 transition-colors leading-tight">
+                                    {cert.title}
+                                  </h4>
+
+                                  {/* Date */}
+                                  <div className="mb-3">
+                                    <span className="inline-block px-2 py-1 text-xs font-mono text-purple-400 bg-purple-500/20 rounded-full border border-purple-500/30">
+                                      📅 {cert.issueDate}
+                                    </span>
+                                  </div>
+
+                                  {/* Description */}
+                                  <p className="text-gray-400 text-sm leading-relaxed">
+                                    {cert.description}
+                                  </p>
+
+                                  {/* Accent line */}
+                                  <div className="h-0.5 mt-4 rounded-full bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400" />
+                                </div>
+                              </div>
+                            </motion.div>
                           ))}
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   </motion.div>
-                ))
-              ) : (
-                <p className="text-center text-gray-400">No experience added yet</p>
+                </>
               )}
-            </motion.div>
-          </div>
-        </section>
+            </AnimatePresence>
+          </section>
+        )}
+
+
 
         {/* PROJECTS SECTION */}
         <section id="projects" className="relative w-full py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">

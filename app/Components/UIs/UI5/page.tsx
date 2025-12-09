@@ -59,6 +59,12 @@ interface UserData {
     href: string
     color: string
   }>
+
+  certifications: Array<{
+    title: string
+    description: string
+    issueDate: string
+  }>
 }
 
 export default function UI6() {
@@ -72,7 +78,7 @@ export default function UI6() {
   const [cursorVariant, setCursorVariant] = useState("default")
 
   const router = useRouter()
-    const params = useParams()
+  const params = useParams()
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 })
 
@@ -84,6 +90,7 @@ export default function UI6() {
 
   // --------------------------------------------------------------------------------------------------------------------------------
   const [submitted, setSubmitted] = useState(false);
+  const [showAllCertificates, setShowAllCertificates] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -98,14 +105,21 @@ export default function UI6() {
     e.preventDefault();
 
     try {
-      // Use the email from state (already fetched from API)
-      if (!userEmail) {
+      // Extract email from localStorage
+      const storedUser = localStorage.getItem('user');
+
+      if (!storedUser) {
         alert('Portfolio owner information not found');
         return;
       }
 
+      const userData = JSON.parse(storedUser);
+      const portfolioOwnerEmail = userData.email; // "Shubh5@gmail.com"
+
+      // Send email using your preferred method
+      // Option 1: EmailJS
       const templateParams = {
-        to_email: userEmail, // Email fetched from API
+        to_email: portfolioOwnerEmail, // Shubh5@gmail.com
         from_name: formData.name,
         from_email: formData.email,
         message: formData.message,
@@ -117,6 +131,18 @@ export default function UI6() {
         templateParams,
         'O8RoSh1QrCmKJeJn7'
       );
+
+      // OR Option 2: API Route
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientEmail: portfolioOwnerEmail, // Shubh5@gmail.com
+          senderName: formData.name,
+          senderEmail: formData.email,
+          message: formData.message,
+        }),
+      });
 
       setSubmitted(true);
       setTimeout(() => {
@@ -133,6 +159,11 @@ export default function UI6() {
 
 
 
+  // --------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
   useEffect(() => {
     const usernameFromUrl = params.username as string
 
@@ -143,7 +174,6 @@ export default function UI6() {
       router.push('/Components/Auth/SignIn')
     }
   }, [params.username])
-
 
   const fetchUserData = async (username: string) => {
     try {
@@ -170,7 +200,6 @@ export default function UI6() {
     }
   }
 
-
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
@@ -191,8 +220,9 @@ export default function UI6() {
     { label: "About", href: "#about", icon: Code },
     { label: "Skills", href: "#skills", icon: Cpu },
     { label: "Work", href: "#projects", icon: Rocket },
+    { label: "Certifications", href: "#certifications", icon: Terminal },
     { label: "Contact", href: "#contact", icon: Zap },
-    // { label: "Dashboard", href: "/Components/DashBoard" , icon: Code},
+    { label: "Dashboard", href: "/Components/DashBoard", icon: Code },
   ]
 
 
@@ -896,95 +926,480 @@ export default function UI6() {
       </section>
 
       {/* Experience Section */}
-      <section id="experience" className="py-32 px-6 relative border-t-2 border-cyan-400/30">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center mb-20"
-          >
-            <h2 className="text-5xl md:text-7xl font-bold uppercase tracking-wider">
-              <span className="text-cyan-400">//</span> Experience <span className="text-green-400">Log</span>
-            </h2>
-          </motion.div>
+      {userData.experiences && userData.experiences.length > 0 && (
+        <section id="experience" className="py-32 px-6 relative border-t-2 border-cyan-400/30">
+          <div className="max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="text-center mb-20"
+            >
+              <h2 className="text-5xl md:text-7xl font-bold uppercase tracking-wider">
+                <span className="text-cyan-400">//</span> Experience <span className="text-green-400">Log</span>
+              </h2>
+            </motion.div>
 
-          {userData.experiences.length > 0 ? (
-            <div className="space-y-8">
-              {userData.experiences.map((exp, index) => (
+            {userData.experiences.length > 0 ? (
+              <div className="space-y-8">
+                {userData.experiences.map((exp, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.2 }}
+                    whileHover={{
+                      scale: 1.02,
+                      boxShadow: "0 0 40px rgba(0, 255, 255, 0.4)"
+                    }}
+                    className="relative border-2 border-cyan-400 p-8"
+                    style={{
+                      clipPath: "polygon(30px 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%, 0 30px)",
+                      boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)"
+                    }}
+                  >
+                    {/* Corner decorations */}
+                    <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-green-400" />
+                    <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-green-400" />
+
+                    <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
+                      <div>
+                        <h3 className="text-3xl font-bold text-green-400 uppercase tracking-wide mb-2">
+                          {exp.role}
+                        </h3>
+                        <p className="text-cyan-400 font-mono text-lg">{exp.company}</p>
+                      </div>
+                      <motion.div
+                        animate={{
+                          boxShadow: [
+                            "0 0 10px #00ff00",
+                            "0 0 20px #00ff00",
+                            "0 0 10px #00ff00",
+                          ]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="px-4 py-2 border-2 border-green-400 text-green-400 font-mono text-sm uppercase"
+                      >
+                        {exp.period}
+                      </motion.div>
+                    </div>
+
+                    <p className="text-gray-300 mb-6 leading-relaxed font-mono text-sm">
+                      {exp.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2">
+                      {exp.skills.map((skill, idx) => (
+                        <motion.span
+                          key={idx}
+                          whileHover={{ scale: 1.1, y: -2 }}
+                          className="px-3 py-1 bg-cyan-400/10 border border-cyan-400/50 text-cyan-400 text-xs font-mono uppercase"
+                        >
+                          {skill}
+                        </motion.span>
+                      ))}
+                    </div>
+
+                    {/* Animated indicator */}
+                    <motion.div
+                      animate={{ opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute top-4 right-4 w-3 h-3 bg-green-400 rounded-full"
+                      style={{ boxShadow: "0 0 10px #00ff00" }}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-gray-500">No experience added yet</p>
+            )}
+          </div>
+        </section>
+      )}
+
+
+      {/* Certifications Section - Cyberpunk Style */}
+      {userData.certifications && userData.certifications.length > 0 && (
+        <section id="certifications" className="py-32 px-6 relative border-t-2 border-cyan-400/30 overflow-hidden">
+          {/* Matrix rain effect */}
+          <div className="absolute inset-0 opacity-5 pointer-events-none">
+            {[...Array(15)].map((_, i) => (
+              <motion.div
+                key={i}
+                animate={{ y: ["-100%", "100%"] }}
+                transition={{
+                  duration: Math.random() * 4 + 3,
+                  repeat: Infinity,
+                  ease: "linear",
+                  delay: Math.random() * 3
+                }}
+                className="absolute w-px bg-gradient-to-b from-transparent via-green-400 to-transparent h-full"
+                style={{ left: `${Math.random() * 100}%` }}
+              />
+            ))}
+          </div>
+
+          <div className="max-w-7xl mx-auto relative z-10">
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="text-center mb-20"
+            >
+              <h2 className="text-5xl md:text-7xl font-bold uppercase tracking-wider">
+                <span className="text-cyan-400">//</span> Certifications <span className="text-green-400">Database</span>
+              </h2>
+              <motion.p
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="text-cyan-400 font-mono text-sm uppercase tracking-wider mt-4"
+              >
+          // Credentials Verified
+              </motion.p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {userData.certifications.slice(0, 6).map((cert, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 }}
+                  transition={{ delay: index * 0.1 }}
                   whileHover={{
-                    scale: 1.02,
-                    boxShadow: "0 0 40px rgba(0, 255, 255, 0.4)"
+                    y: -10,
+                    boxShadow: "0 0 50px rgba(0, 255, 255, 0.6)"
                   }}
-                  className="relative border-2 border-cyan-400 p-8"
+                  className="group relative border-2 border-cyan-400 p-6 overflow-hidden"
                   style={{
-                    clipPath: "polygon(30px 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%, 0 30px)",
+                    clipPath: "polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)",
                     boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)"
                   }}
                 >
+                  {/* Scan line effect on hover */}
+                  <motion.div
+                    animate={{ y: ["-100%", "200%"] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/20 to-transparent opacity-0 group-hover:opacity-100"
+                  />
+
                   {/* Corner decorations */}
-                  <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-green-400" />
-                  <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-green-400" />
+                  <div className="absolute top-0 left-0 w-10 h-10 border-t-4 border-l-4 border-green-400" />
+                  <div className="absolute bottom-0 right-0 w-10 h-10 border-b-4 border-r-4 border-green-400" />
 
-                  <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
-                    <div>
-                      <h3 className="text-3xl font-bold text-green-400 uppercase tracking-wide mb-2">
-                        {exp.role}
-                      </h3>
-                      <p className="text-cyan-400 font-mono text-lg">{exp.company}</p>
-                    </div>
-                    <motion.div
-                      animate={{
-                        boxShadow: [
-                          "0 0 10px #00ff00",
-                          "0 0 20px #00ff00",
-                          "0 0 10px #00ff00",
-                        ]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="px-4 py-2 border-2 border-green-400 text-green-400 font-mono text-sm uppercase"
-                    >
-                      {exp.period}
-                    </motion.div>
-                  </div>
-
-                  <p className="text-gray-300 mb-6 leading-relaxed font-mono text-sm">
-                    {exp.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2">
-                    {exp.skills.map((skill, idx) => (
-                      <motion.span
-                        key={idx}
-                        whileHover={{ scale: 1.1, y: -2 }}
-                        className="px-3 py-1 bg-cyan-400/10 border border-cyan-400/50 text-cyan-400 text-xs font-mono uppercase"
-                      >
-                        {skill}
-                      </motion.span>
-                    ))}
-                  </div>
-
-                  {/* Animated indicator */}
+                  {/* Status indicator */}
                   <motion.div
                     animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{ duration: 2, repeat: Infinity }}
+                    transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
                     className="absolute top-4 right-4 w-3 h-3 bg-green-400 rounded-full"
                     style={{ boxShadow: "0 0 10px #00ff00" }}
                   />
+
+                  <div className="relative z-10 flex flex-col h-full">
+                    {/* Certificate Icon with rotation */}
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      whileInView={{ scale: 1, rotate: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.1 + 0.2, type: "spring", stiffness: 200 }}
+                      className="mb-6"
+                    >
+                      <div className="w-20 h-20 border-2 border-cyan-400 bg-black flex items-center justify-center relative"
+                        style={{
+                          clipPath: "polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)",
+                          boxShadow: "0 0 20px rgba(0, 255, 255, 0.3)"
+                        }}
+                      >
+                        <motion.span
+                          animate={{
+                            rotate: [0, 360],
+                            textShadow: [
+                              "0 0 10px #00ff00",
+                              "0 0 20px #00ff00, 0 0 30px #00ffff",
+                              "0 0 10px #00ff00"
+                            ]
+                          }}
+                          transition={{ rotate: { duration: 20, repeat: Infinity, ease: "linear" }, textShadow: { duration: 2, repeat: Infinity } }}
+                          className="text-4xl"
+                        >
+                          🏆
+                        </motion.span>
+                      </div>
+                    </motion.div>
+
+                    {/* Title with glitch effect on hover */}
+                    <motion.h3
+                      whileHover={{
+                        textShadow: [
+                          "2px 2px 0 #00ffff, -2px -2px 0 #00ff00",
+                          "-2px 2px 0 #00ffff, 2px -2px 0 #00ff00",
+                          "2px 2px 0 #00ffff, -2px -2px 0 #00ff00"
+                        ]
+                      }}
+                      transition={{ duration: 0.3 }}
+                      className="text-xl font-bold text-cyan-400 mb-4 uppercase tracking-wide leading-tight"
+                    >
+                      {cert.title}
+                    </motion.h3>
+
+                    {/* Issue Date Badge */}
+                    <div className="mb-4">
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 border-2 border-green-400/50 text-green-400 text-xs font-mono uppercase"
+                        style={{
+                          clipPath: "polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)"
+                        }}
+                      >
+                        <Terminal size={12} />
+                        {cert.issueDate}
+                      </motion.div>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-gray-400 text-sm leading-relaxed flex-grow font-mono mb-4">
+                      {cert.description}
+                    </p>
+
+                    {/* Bottom accent line with animation */}
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: "100%" }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.1 + 0.5, duration: 0.8 }}
+                      className="h-1 bg-gradient-to-r from-cyan-400 via-green-400 to-cyan-400 relative"
+                    >
+                      <motion.div
+                        animate={{ x: ["-100%", "200%"] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-0 w-1/3 bg-white/50 blur-sm"
+                      />
+                    </motion.div>
+                  </div>
                 </motion.div>
               ))}
             </div>
-          ) : (
-            <p className="text-center text-gray-500">No experience added yet</p>
-          )}
-        </div>
-      </section>
+
+            {/* View More Button */}
+            {userData.certifications.length > 6 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center mt-16"
+              >
+                <motion.button
+                  whileHover={{ scale: 1.05, boxShadow: "0 0 40px #00ff00" }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowAllCertificates(true)}
+                  className="px-10 py-5 bg-gradient-to-r from-cyan-500 to-green-500 text-black font-bold uppercase tracking-[0.2em] text-lg flex items-center gap-3 mx-auto"
+                  style={{ clipPath: "polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)" }}
+                >
+                  <Activity size={24} />
+                  Load All {userData.certifications.length} Certs
+                </motion.button>
+              </motion.div>
+            )}
+
+            {/* Total Count Display */}
+            {userData.certifications.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 }}
+                className="mt-16 flex justify-center"
+              >
+                <div className="relative border-2 border-cyan-400 px-12 py-6"
+                  style={{
+                    clipPath: "polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)",
+                    boxShadow: "0 0 30px rgba(0, 255, 255, 0.3), inset 0 0 30px rgba(0, 255, 255, 0.05)"
+                  }}
+                >
+                  {/* Corner accents */}
+                  <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-green-400" />
+                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-green-400" />
+
+                  <div className="flex items-center gap-8">
+                    <motion.div
+                      animate={{
+                        rotate: [0, 360],
+                        scale: [1, 1.2, 1]
+                      }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                      className="text-5xl"
+                      style={{ filter: "drop-shadow(0 0 10px currentColor)" }}
+                    >
+                      ⚡
+                    </motion.div>
+                    <div>
+                      <motion.p
+                        animate={{
+                          textShadow: [
+                            "0 0 10px #00ffff",
+                            "0 0 20px #00ffff, 0 0 30px #00ff00",
+                            "0 0 10px #00ffff"
+                          ]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-green-400 to-cyan-400"
+                      >
+                        {userData.certifications.length}
+                      </motion.p>
+                      <p className="text-cyan-400 text-sm font-mono uppercase tracking-wider mt-1">
+                        Certifications Loaded
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Pulsing indicator */}
+                  <motion.div
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="absolute top-4 right-4 w-2 h-2 bg-green-400 rounded-full"
+                    style={{ boxShadow: "0 0 10px #00ff00" }}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Modal for All Certifications */}
+          <AnimatePresence>
+            {showAllCertificates && (
+              <>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowAllCertificates(false)}
+                  className="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4"
+                >
+                  {/* Modal Content */}
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0, rotateX: -90 }}
+                    animate={{ scale: 1, opacity: 1, rotateX: 0 }}
+                    exit={{ scale: 0.8, opacity: 0, rotateX: 90 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="bg-black border-2 border-cyan-400 max-w-7xl w-full max-h-[90vh] overflow-hidden relative"
+                    style={{
+                      clipPath: "polygon(40px 0, 100% 0, 100% calc(100% - 40px), calc(100% - 40px) 100%, 0 100%, 0 40px)",
+                      boxShadow: "0 0 60px rgba(0, 255, 255, 0.5), inset 0 0 60px rgba(0, 255, 255, 0.1)"
+                    }}
+                  >
+                    {/* Corner decorations */}
+                    <div className="absolute top-0 left-0 w-16 h-16 border-t-4 border-l-4 border-green-400 z-10" />
+                    <div className="absolute bottom-0 right-0 w-16 h-16 border-b-4 border-r-4 border-green-400 z-10" />
+
+                    {/* Modal Header */}
+                    <div className="sticky top-0 z-20 bg-black border-b-2 border-cyan-400/30 p-8 flex justify-between items-center">
+                      <div>
+                        <h3 className="text-4xl font-bold uppercase tracking-wider">
+                          <span className="text-cyan-400">//</span> All <span className="text-green-400">Certifications</span>
+                        </h3>
+                        <motion.p
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                          className="text-cyan-400 font-mono text-sm uppercase tracking-wider mt-2"
+                        >
+                          {userData.certifications.length} Records Found
+                        </motion.p>
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.1, rotate: 90, boxShadow: "0 0 20px #00ffff" }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setShowAllCertificates(false)}
+                        className="w-14 h-14 border-2 border-cyan-400 flex items-center justify-center text-cyan-400 hover:text-green-400 transition-all"
+                        style={{
+                          clipPath: "polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)"
+                        }}
+                      >
+                        <X size={28} />
+                      </motion.button>
+                    </div>
+
+                    {/* Modal Body - Scrollable */}
+                    <div className="p-8 overflow-y-auto max-h-[calc(90vh-140px)]">
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {userData.certifications.map((cert, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            whileHover={{
+                              y: -5,
+                              boxShadow: "0 0 30px rgba(0, 255, 255, 0.5)"
+                            }}
+                            className="group relative border-2 border-cyan-400/50 p-6"
+                            style={{
+                              clipPath: "polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px)",
+                              boxShadow: "0 0 15px rgba(0, 255, 255, 0.2)"
+                            }}
+                          >
+                            {/* Scan line */}
+                            <motion.div
+                              animate={{ y: ["-100%", "200%"] }}
+                              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                              className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/10 to-transparent opacity-0 group-hover:opacity-100"
+                            />
+
+                            {/* Status */}
+                            <motion.div
+                              animate={{ opacity: [0.3, 1, 0.3] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                              className="absolute top-3 right-3 w-2 h-2 bg-green-400 rounded-full"
+                              style={{ boxShadow: "0 0 10px #00ff00" }}
+                            />
+
+                            <div className="relative z-10">
+                              {/* Icon */}
+                              <div className="mb-4">
+                                <div className="w-16 h-16 border-2 border-cyan-400/50 flex items-center justify-center text-3xl"
+                                  style={{
+                                    clipPath: "polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)"
+                                  }}
+                                >
+                                  🎓
+                                </div>
+                              </div>
+
+                              {/* Title */}
+                              <h4 className="text-lg font-bold text-cyan-400 mb-3 uppercase tracking-wide leading-tight">
+                                {cert.title}
+                              </h4>
+
+                              {/* Date */}
+                              <div className="mb-3">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-green-400/50 text-green-400 text-xs font-mono">
+                                  {cert.issueDate}
+                                </span>
+                              </div>
+
+                              {/* Description */}
+                              <p className="text-gray-400 text-xs leading-relaxed font-mono mb-3">
+                                {cert.description}
+                              </p>
+
+                              {/* Bottom line */}
+                              <div className="h-0.5 bg-gradient-to-r from-cyan-400 via-green-400 to-transparent" />
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </section>
+      )}
+
+
 
       {/* Projects Section */}
       <section id="projects" className="py-32 px-6 relative border-t-2 border-cyan-400/30">
@@ -1218,25 +1633,29 @@ export default function UI6() {
               </h3>
               <div className="flex justify-center gap-4">
                 {userData.socialLinks.map((social, index) => (
-                  <motion.a
-                    key={index}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{
-                      y: -5,
-                      scale: 1.1,
-                      boxShadow: "0 0 30px currentColor",
-                      borderColor: "currentColor"
-                    }}
-                    className="w-14 h-14 border-2 border-cyan-400 flex items-center justify-center text-2xl text-cyan-400 hover:text-green-400 transition-all"
-                    style={{
-                      clipPath: "polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)",
-                      boxShadow: "0 0 15px rgba(0, 255, 255, 0.3)"
-                    }}
-                  >
-                    {social.icon}
-                  </motion.a>
+                  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
+                    <motion.a
+                      key={index}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{
+                        y: -5,
+                        scale: 1.1,
+                        boxShadow: "0 0 30px currentColor",
+                        borderColor: "currentColor"
+                      }}
+                      className="w-14 h-14 border-2 border-cyan-400 flex items-center justify-center text-2xl text-cyan-400 hover:text-green-400 transition-all"
+                      style={{
+                        clipPath: "polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)",
+                        boxShadow: "0 0 15px rgba(0, 255, 255, 0.3)"
+                      }}
+                    >
+                      {social.icon}
+                    </motion.a>
+
+                    <p>{social.label}</p>
+                  </div>
                 ))}
               </div>
             </div>

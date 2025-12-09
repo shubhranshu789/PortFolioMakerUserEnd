@@ -60,6 +60,12 @@ interface UserData {
     href: string
     color: string
   }>
+
+  certifications: Array<{
+    title: string
+    description: string
+    issueDate: string
+  }>
 }
 
 export default function UI5() {
@@ -70,7 +76,7 @@ export default function UI5() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   const router = useRouter()
-    const params = useParams()
+  const params = useParams()
   const { scrollYProgress } = useScroll()
   const yPosAnim = useTransform(scrollYProgress, [0, 1], [0, -100])
 
@@ -84,6 +90,7 @@ export default function UI5() {
 
 
   const [submitted, setSubmitted] = useState(false);
+  const [showAllCertificates, setShowAllCertificates] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -98,14 +105,21 @@ export default function UI5() {
     e.preventDefault();
 
     try {
-      // Use the email from state (already fetched from API)
-      if (!userEmail) {
+      // Extract email from localStorage
+      const storedUser = localStorage.getItem('user');
+
+      if (!storedUser) {
         alert('Portfolio owner information not found');
         return;
       }
 
+      const userData = JSON.parse(storedUser);
+      const portfolioOwnerEmail = userData.email; // "Shubh5@gmail.com"
+
+      // Send email using your preferred method
+      // Option 1: EmailJS
       const templateParams = {
-        to_email: userEmail, // Email fetched from API
+        to_email: portfolioOwnerEmail, // Shubh5@gmail.com
         from_name: formData.name,
         from_email: formData.email,
         message: formData.message,
@@ -117,6 +131,18 @@ export default function UI5() {
         templateParams,
         'O8RoSh1QrCmKJeJn7'
       );
+
+      // OR Option 2: API Route
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientEmail: portfolioOwnerEmail, // Shubh5@gmail.com
+          senderName: formData.name,
+          senderEmail: formData.email,
+          message: formData.message,
+        }),
+      });
 
       setSubmitted(true);
       setTimeout(() => {
@@ -133,6 +159,9 @@ export default function UI5() {
 
 
 
+
+
+
   useEffect(() => {
     const usernameFromUrl = params.username as string
 
@@ -143,7 +172,6 @@ export default function UI5() {
       router.push('/Components/Auth/SignIn')
     }
   }, [params.username])
-
 
   const fetchUserData = async (username: string) => {
     try {
@@ -224,8 +252,9 @@ export default function UI5() {
     { label: "About", href: "#about" },
     { label: "Skills", href: "#skills" },
     { label: "Portfolio", href: "#projects" },
+    { label: "Certifications", href: "#certifications" },
     { label: "Contact", href: "#contact" },
-    // { label: "Dashboard", href: "/Components/DashBoard" },
+    { label: "Dashboard", href: "/Components/DashBoard" },
   ]
 
   const currentYear = new Date().getFullYear()
@@ -626,69 +655,336 @@ export default function UI5() {
       </section>
 
       {/* Experience Section - Timeline with Glass Cards */}
-      <section id="experience" className="py-32 px-6 relative">
-        <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-20"
-          >
-            <h2 className="text-5xl md:text-6xl font-bold">Experience</h2>
-          </motion.div>
+      {userData.experiences && userData.experiences.length > 0 && (
+        <section id="experience" className="py-32 px-6 relative">
+          <div className="max-w-5xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-20"
+            >
+              <h2 className="text-5xl md:text-6xl font-bold">Experience</h2>
+            </motion.div>
 
-          {userData.experiences.length > 0 ? (
-            <div className="relative">
-              {/* Timeline line */}
-              <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500" />
+            {userData.experiences.length > 0 ? (
+              <div className="relative">
+                {/* Timeline line */}
+                <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500" />
 
-              <div className="space-y-12">
-                {userData.experiences.map((exp, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.2 }}
-                    className="relative pl-24"
-                  >
-                    {/* Timeline dot */}
-                    <div className="absolute left-6 top-6 w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full border-4 border-indigo-950" />
-
+                <div className="space-y-12">
+                  {userData.experiences.map((exp, index) => (
                     <motion.div
-                      whileHover={{ scale: 1.02, x: 10 }}
-                      className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8"
+                      key={index}
+                      initial={{ opacity: 0, x: -50 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.2 }}
+                      className="relative pl-24"
                     >
-                      <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-                        <div>
-                          <h3 className="text-2xl font-bold mb-2">{exp.role}</h3>
-                          <p className="text-purple-400 font-semibold">{exp.company}</p>
-                        </div>
-                        <span className="px-4 py-2 bg-white/10 rounded-full text-sm font-mono">
-                          {exp.period}
-                        </span>
-                      </div>
-                      <p className="text-white/70 mb-4 leading-relaxed">{exp.description}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {exp.skills.map((skill, idx) => (
-                          <span
-                            key={idx}
-                            className="px-3 py-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full text-xs font-medium"
-                          >
-                            {skill}
+                      {/* Timeline dot */}
+                      <div className="absolute left-6 top-6 w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full border-4 border-indigo-950" />
+
+                      <motion.div
+                        whileHover={{ scale: 1.02, x: 10 }}
+                        className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8"
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+                          <div>
+                            <h3 className="text-2xl font-bold mb-2">{exp.role}</h3>
+                            <p className="text-purple-400 font-semibold">{exp.company}</p>
+                          </div>
+                          <span className="px-4 py-2 bg-white/10 rounded-full text-sm font-mono">
+                            {exp.period}
                           </span>
+                        </div>
+                        <p className="text-white/70 mb-4 leading-relaxed">{exp.description}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {exp.skills.map((skill, idx) => (
+                            <span
+                              key={idx}
+                              className="px-3 py-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full text-xs font-medium"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="text-center text-white/60">No experience added yet</p>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Certifications Section - Glassmorphism */}
+      {userData.certifications && userData.certifications.length > 0 && (
+        <section id="certifications" className="py-32 px-6 relative">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-20"
+            >
+              <h2 className="text-5xl md:text-6xl font-bold mb-6">
+                Certifications & <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Achievements</span>
+              </h2>
+              <p className="text-white/70 text-xl">Professional credentials and accomplishments</p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {userData.certifications.slice(0, 6).map((cert, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -10, scale: 1.02 }}
+                  className="group relative"
+                >
+                  <div className="relative h-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 overflow-hidden hover:border-white/40 transition-all">
+
+                    {/* Animated gradient background */}
+                    <motion.div
+                      animate={{
+                        background: [
+                          'radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.1) 0%, transparent 50%)',
+                          'radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)',
+                          'radial-gradient(circle at 0% 100%, rgba(236, 72, 153, 0.1) 0%, transparent 50%)',
+                          'radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.1) 0%, transparent 50%)',
+                        ],
+                      }}
+                      transition={{ duration: 8, repeat: Infinity }}
+                      className="absolute inset-0 group-hover:opacity-100 opacity-0 transition-opacity"
+                    />
+
+                    {/* Trophy Badge */}
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      whileInView={{ scale: 1, rotate: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.1 + 0.2, type: "spring", stiffness: 200 }}
+                      className="absolute top-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/50"
+                    >
+                      <span className="text-2xl">🏆</span>
+                    </motion.div>
+
+                    <div className="relative z-10 flex flex-col h-full">
+                      {/* Certificate Icon */}
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        whileInView={{ scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 + 0.3, type: "spring" }}
+                        className="mb-6"
+                      >
+                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-600/20 backdrop-blur-sm border border-white/20 flex items-center justify-center">
+                          <span className="text-4xl">🎓</span>
+                        </div>
+                      </motion.div>
+
+                      {/* Title */}
+                      <h3 className="text-2xl font-bold text-white mb-4 leading-tight group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 group-hover:bg-clip-text group-hover:text-transparent transition-all">
+                        {cert.title}
+                      </h3>
+
+                      {/* Issue Date */}
+                      <div className="mb-4">
+                        <motion.span
+                          whileHover={{ scale: 1.05 }}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-sm font-mono"
+                        >
+                          <span>📅</span>
+                          {cert.issueDate}
+                        </motion.span>
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-white/70 leading-relaxed flex-grow text-sm">
+                        {cert.description}
+                      </p>
+
+                      {/* Gradient line at bottom */}
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: "100%" }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 + 0.5, duration: 0.8 }}
+                        className="h-1 mt-6 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                      />
+                    </div>
+
+                    {/* Corner decorations */}
+                    <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-white/20 rounded-bl-xl" />
+                    <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-white/20 rounded-tl-xl" />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* View More Button */}
+            {userData.certifications.length > 6 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center mt-16"
+              >
+                <motion.button
+                  whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(139, 92, 246, 0.6)" }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowAllCertificates(true)}
+                  className="px-10 py-5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl font-bold text-lg hover:shadow-xl transition-all flex items-center gap-3 mx-auto"
+                >
+                  View All {userData.certifications.length} Certifications
+                  <ArrowRight size={22} />
+                </motion.button>
+              </motion.div>
+            )}
+
+            {/* Total Count Badge */}
+            {userData.certifications.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 }}
+                className="mt-16 flex justify-center"
+              >
+                <div className="inline-flex items-center gap-6 px-12 py-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl">
+                  <motion.div
+                    animate={{
+                      rotate: [0, 360],
+                      scale: [1, 1.2, 1]
+                    }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                    className="text-5xl"
+                  >
+                    ✨
+                  </motion.div>
+                  <div>
+                    <p className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                      {userData.certifications.length}
+                    </p>
+                    <p className="text-white/70 text-sm font-medium mt-1">
+                      Certifications Earned
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Modal for All Certifications */}
+          <AnimatePresence>
+            {showAllCertificates && (
+              <>
+                {/* Backdrop with blur */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowAllCertificates(false)}
+                  className="fixed inset-0 bg-black/80 backdrop-blur-xl z-50 flex items-center justify-center p-4"
+                >
+                  {/* Modal Content */}
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0, y: 100 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.8, opacity: 0, y: 100 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 250 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl max-w-7xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+                  >
+                    {/* Modal Header */}
+                    <div className="sticky top-0 z-10 bg-gradient-to-br from-indigo-950/95 via-purple-950/95 to-pink-950/95 backdrop-blur-xl border-b border-white/20 p-8 flex justify-between items-center">
+                      <div>
+                        <h3 className="text-4xl font-bold text-white mb-2">
+                          All <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Certifications</span>
+                        </h3>
+                        <p className="text-white/70">
+                          {userData.certifications.length} professional achievements
+                        </p>
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.1, rotate: 90 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setShowAllCertificates(false)}
+                        className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 flex items-center justify-center text-white transition-all"
+                      >
+                        <X size={28} />
+                      </motion.button>
+                    </div>
+
+                    {/* Modal Body - Scrollable */}
+                    <div className="p-8 overflow-y-auto max-h-[calc(90vh-140px)]">
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {userData.certifications.map((cert, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            whileHover={{ y: -5, scale: 1.02 }}
+                            className="group relative"
+                          >
+                            <div className="relative h-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:border-white/40 transition-all">
+
+                              {/* Hover glow */}
+                              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all rounded-2xl" />
+
+                              {/* Badge */}
+                              <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                                <span className="text-xl">🏆</span>
+                              </div>
+
+                              <div className="relative z-10">
+                                {/* Icon */}
+                                <div className="mb-4">
+                                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-600/20 border border-white/20 flex items-center justify-center">
+                                    <span className="text-3xl">🎓</span>
+                                  </div>
+                                </div>
+
+                                {/* Title */}
+                                <h4 className="text-xl font-bold text-white mb-3 leading-tight group-hover:text-purple-400 transition-colors">
+                                  {cert.title}
+                                </h4>
+
+                                {/* Date */}
+                                <div className="mb-3">
+                                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 border border-white/20 rounded-full text-xs font-mono">
+                                    📅 {cert.issueDate}
+                                  </span>
+                                </div>
+
+                                {/* Description */}
+                                <p className="text-white/70 text-sm leading-relaxed mb-4">
+                                  {cert.description}
+                                </p>
+
+                                {/* Bottom line */}
+                                <div className="h-1 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
+                              </div>
+                            </div>
+                          </motion.div>
                         ))}
                       </div>
-                    </motion.div>
+                    </div>
                   </motion.div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <p className="text-center text-white/60">No experience added yet</p>
-          )}
-        </div>
-      </section>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </section>
+      )}
+
 
       {/* Projects Section - Card Grid with Glassmorphism */}
       <section id="projects" className="py-32 px-6 relative">
@@ -861,9 +1157,9 @@ export default function UI5() {
 
             <div className="mt-12 pt-12 border-t border-white/10">
               <h3 className="text-center text-xl font-bold mb-8">Connect with me</h3>
-              <div className="flex justify-center gap-4">
+              <div className="flex justify-center gap-10">
                 {userData.socialLinks.map((social, index) => (
-                  <div>
+                  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
                     <motion.a
                       key={index}
                       href={social.href}
