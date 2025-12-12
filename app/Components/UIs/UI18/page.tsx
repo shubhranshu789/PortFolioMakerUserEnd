@@ -231,7 +231,7 @@ export default function FuturisticPortfolio() {
     { label: "Certifications", href: "#certifications" },
     { label: "SERVICES", href: "#skills" },
     { label: "CONTACT", href: "#contact" },
-    { label: "DASHBOARD", href: "/Components/DashBoard" },
+    // { label: "DASHBOARD", href: "/Components/DashBoard" },
   ]
 
   const currentYear = new Date().getFullYear()

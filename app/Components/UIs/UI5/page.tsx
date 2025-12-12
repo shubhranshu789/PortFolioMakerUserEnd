@@ -222,7 +222,7 @@ export default function UI6() {
     { label: "Work", href: "#projects", icon: Rocket },
     { label: "Certifications", href: "#certifications", icon: Terminal },
     { label: "Contact", href: "#contact", icon: Zap },
-    { label: "Dashboard", href: "/Components/DashBoard", icon: Code },
+    // { label: "Dashboard", href: "/Components/DashBoard", icon: Code },
   ]
 
 

@@ -197,7 +197,7 @@ export default function LuminescentPortfolio() {
     { label: "WORK", href: "#projects" },
     { label: "Certifications", href: "#certifications" },
     { label: "CONTACT", href: "#contact" },
-    { label: "DASHBOARD", href: "/Components/DashBoard" },
+    // { label: "DASHBOARD", href: "/Components/DashBoard" },
   ]
 
   const currentYear = new Date().getFullYear()

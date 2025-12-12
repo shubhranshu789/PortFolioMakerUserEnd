@@ -201,7 +201,7 @@ export default function UltraModernPortfolio() {
     { label: "Work", href: "#projects" },
     { label: "Certifications", href: "#certifications" },
     { label: "Contact", href: "#contact" },
-    { label: "Dashboard", href: "/Components/DashBoard" },
+    // { label: "Dashboard", href: "/Components/DashBoard" },
   ]
 
   const currentYear = new Date().getFullYear()

@@ -210,7 +210,7 @@ export default function FreshPortfolio() {
     { label: "WORK", href: "#projects" },
     { label: "Certifications", href: "#certifications" },
     { label: "Contact", href: "#contact" },
-    { label: "Dashboard", href: "/Components/DashBoard" },
+    // { label: "Dashboard", href: "/Components/DashBoard" },
   ]
 
   const currentYear = new Date().getFullYear()

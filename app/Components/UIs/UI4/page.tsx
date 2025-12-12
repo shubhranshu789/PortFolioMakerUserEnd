@@ -254,7 +254,7 @@ export default function UI5() {
     { label: "Portfolio", href: "#projects" },
     { label: "Certifications", href: "#certifications" },
     { label: "Contact", href: "#contact" },
-    { label: "Dashboard", href: "/Components/DashBoard" },
+    // { label: "Dashboard", href: "/Components/DashBoard" },
   ]
 
   const currentYear = new Date().getFullYear()
